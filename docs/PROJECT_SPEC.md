@@ -39,7 +39,7 @@ The MVP should:
 9. Have automated coverage for important workflows and permission boundaries.
 10. Provide reproducible setup, migration, test, and run instructions for another developer.
 
-The MVP is accepted only when the implemented workflows, tests, documentation, and local demonstration have been verified together. The current repository contains the Phase 2 skeleton, Phase 3 database foundation, and Phase 4 authentication foundation; equipment, work-order, dashboard, and frontend authentication functionality remain to be implemented.
+The MVP is accepted only when the implemented workflows, tests, documentation, and local demonstration have been verified together. The current repository contains the Phase 2 skeleton, Phase 3 database foundation, Phase 4 authentication foundation, and Phase 5 equipment APIs; work-order, dashboard, and frontend authentication/equipment functionality remain to be implemented.
 
 ## 3. Functional requirements
 
@@ -60,6 +60,7 @@ The MVP is accepted only when the implemented workflows, tests, documentation, a
 - Equipment can be edited and deactivated without deleting its historical work orders.
 - Equipment lists support text search and useful filters, including active/deactivated state and category or location where implemented.
 - Deactivated equipment cannot receive new work orders unless the final business rule is explicitly approved.
+- Phase 5 implements `/api/assets` with bounded pagination, deterministic ordering, authenticated read access for all roles, and administrator/manager write access. Deactivation is a dedicated idempotent operation and does not delete the record.
 
 ### Work orders
 
@@ -363,7 +364,7 @@ Open assumptions must be resolved in the relevant implementation phase and recor
 
 ## 16. Known limitations
 
-- No business API or frontend authentication UI exists yet; the Phase 3 ORM models and Phase 4 authentication foundation are implemented and locally verified.
+- Work-order, dashboard, and frontend authentication/equipment APIs do not exist yet; the Phase 3 ORM models, Phase 4 authentication foundation, and Phase 5 equipment APIs are implemented and locally verified.
 - The MVP is not multi-tenant.
 - Notifications, file attachments, inventory/parts, preventive-maintenance scheduling, mobile apps, machine learning, advanced analytics, microservices, Kubernetes, and production AWS operations are excluded unless later approved.
 - The current specification describes planned behavior; implementation and verification remain outstanding.

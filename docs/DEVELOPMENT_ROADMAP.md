@@ -2,7 +2,7 @@
 
 This roadmap is the intended lifecycle. Work proceeds in order, and the status document records what is actually underway. A later phase must not be treated as complete because its files or plans exist.
 
-**Current roadmap state:** Phases 1–4 are complete and verified. The local PostgreSQL schema is at Alembic revision `e98ccb2cbf89`. Phase 5 is next; all later phases remain not started.
+**Current roadmap state:** Phases 1–5 are complete and verified. The local PostgreSQL schema is at Alembic revision `e98ccb2cbf89`. Phase 6 is next; all later phases remain not started.
 
 ## Phase 1 — Project foundation and master documentation
 
@@ -61,6 +61,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 **Completion criteria:** Login failure/success, expiry, inactive users, and each role's access boundaries are tested; secrets are environment-based; sensitive values are not logged.
 
 ## Phase 5 — Equipment-management APIs
+
+**Status:** Complete and verified on October 10, 2026. Authenticated asset listing, search/filter/pagination, creation, retrieval, partial updates, conflict handling, and idempotent deactivation are implemented and PostgreSQL-tested.
 
 **Objective:** Implement validated equipment registration and lifecycle management.
 

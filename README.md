@@ -4,9 +4,9 @@ FixFlow is a maintenance and repair management platform for small and medium-siz
 
 ## Current status
 
-Phases 1–4 are complete and verified: the repository contains a minimal FastAPI backend, React/Vite frontend skeleton, SQLAlchemy models, an applied Alembic migration, JWT authentication, and backend role dependencies.
+Phases 1–5 are complete and verified: the repository contains a minimal FastAPI backend, React/Vite frontend skeleton, SQLAlchemy models, an applied Alembic migration, JWT authentication, backend role dependencies, and authenticated equipment APIs.
 
-Equipment APIs, work-order APIs, maintenance workflows, dashboards, and the frontend login UI have not been implemented yet.
+Work-order APIs, maintenance workflows, dashboards, and the frontend login/equipment UI have not been implemented yet.
 
 ## Planned features
 
@@ -112,6 +112,18 @@ Configure `JWT_SECRET_KEY` in `backend/.env` with a random secret of at least 32
 Create the first administrator interactively after the Phase 3 migration is applied with `python -m app.cli.create_admin`.
 
 There is no public registration endpoint. Logout for stateless JWT authentication means discarding the token on the client; server-side revocation is not implemented in this phase.
+
+### Equipment API
+
+Phase 5 provides authenticated equipment management:
+
+- `GET /api/assets` — paginated list with `search`, `category`, `location`, `status`, `skip`, and `limit` filters.
+- `POST /api/assets` — administrators and managers create active equipment.
+- `GET /api/assets/{asset_id}` — any authenticated role retrieves an asset, including deactivated history.
+- `PATCH /api/assets/{asset_id}` — administrators and managers partially update editable fields.
+- `POST /api/assets/{asset_id}/deactivate` — administrators and managers deactivate without deleting.
+
+List responses use `{items, total, skip, limit}` and are ordered by asset ID. `limit` is bounded from 1 through 100 and defaults to 20. Technicians have read-only access. Duplicate asset codes return HTTP 409; missing/invalid authentication returns 401; authenticated write attempts by technicians return 403; missing assets return 404; invalid input returns 422.
 
 ### Frontend
 

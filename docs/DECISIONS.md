@@ -85,3 +85,10 @@ This log records decisions that constrain implementation. “Final” means appr
 - **Reason:** These are maintained, explicit mechanisms that keep secrets out of source control, avoid plaintext passwords, support FastAPI Bearer documentation, and provide a safe bootstrap without public administrator registration.
 - **Trade-offs:** Stateless tokens cannot be individually revoked before expiry; future refresh/revocation requirements may require a token-version or deny-list design. The first administrator must be provisioned from a trusted local environment.
 - **Status:** Final for Phase 4, subject to future reviewed security requirements.
+
+## D-013 — Phase 5 equipment API contract
+
+- **Decision:** Use a paginated `{items, total, skip, limit}` response for `GET /api/assets`, deterministic ascending asset-ID ordering, a default page size of 20 with a maximum of 100, case-insensitive contains search over asset code/name, case-insensitive category/location filters, and idempotent deactivation through a dedicated endpoint. All authenticated roles can read; only administrators and managers can create, update, or deactivate.
+- **Reason:** The contract is predictable for the future frontend, keeps list queries bounded, preserves historical deactivated records, and matches the approved role matrix.
+- **Trade-offs:** Category and location filters are exact case-insensitive matches rather than free-text contains searches; deactivation has no reactivation endpoint in this phase.
+- **Status:** Final for Phase 5, subject to future reviewed product requirements.

@@ -2,12 +2,12 @@
 
 ## 1. Project status and last-updated date
 
-**Status:** Phase 4 authentication and authorization complete and verified; Phase 5 equipment-management APIs is next.
+**Status:** Phase 5 equipment-management APIs complete and verified; Phase 6 work-order and maintenance APIs is next.
 **Last updated:** October 10, 2026
 
 ## 2. Current phase
 
-Phase 5 — Equipment-management APIs is next. Phase 4 is complete, including password hashing, JWT authentication, active-user checks, role dependencies, and administrator provisioning.
+Phase 6 — Work-order and maintenance APIs is next. Phase 5 is complete, including authenticated equipment listing, filtering, pagination, creation, retrieval, updates, conflict handling, and idempotent deactivation.
 
 ## 3. Overall completion state
 
@@ -15,15 +15,30 @@ Project foundation and runnable skeleton: complete.
 Database model and migration source: implemented and verified.
 Live database schema: migrated and verified at Alembic revision `e98ccb2cbf89`.
 Authentication and authorization: complete.
-Equipment, work orders, maintenance APIs, dashboards, Docker, and AWS deployment: not started.
+Equipment management: complete.
+Work orders, maintenance APIs, dashboards, Docker, and AWS deployment: not started.
 
 ## 4. Completed phases
 
 - **Phase 1 — Project foundation and master documentation:** Complete and verified.
 - **Phase 2 — Environment setup and application skeleton:** Complete and verified.
 - **Phase 3 — Database models and migrations:** Complete and verified.
+- **Phase 4 — Authentication and authorization:** Complete and verified.
 
-## 5. Phase 4 work completed
+## 5. Phase 5 work completed
+
+- Authenticated `GET /api/assets` with deterministic ID ordering, bounded pagination, search over asset code/name, category/location filters, and active/deactivated status filtering.
+- Administrator and manager asset creation with HTTP 201 responses.
+- Authenticated asset retrieval for all roles, including deactivated historical records.
+- Administrator and manager PATCH updates for editable fields only; empty patches are rejected.
+- Administrator and manager idempotent deactivation without physical deletion.
+- Duplicate asset codes return a safe HTTP 409 response without database tracebacks.
+- Technicians have read-only access; unauthenticated callers receive 401 and unauthorized writes receive 403.
+- PostgreSQL-backed rollback-isolated integration tests cover the complete equipment lifecycle.
+
+No work-order CRUD, technician assignment, maintenance completion, dashboard analytics, frontend equipment UI, or cloud deployment was added.
+
+## 6. Phase 4 work completed
 
 - Argon2id password hashing through `pwdlib`; only password hashes are stored.
 - JSON login at `POST /api/auth/login` with generic invalid-credential responses.
@@ -35,9 +50,9 @@ Equipment, work orders, maintenance APIs, dashboards, Docker, and AWS deployment
 - No public registration endpoint and no authentication migration was required.
 - Phase 2 health behavior remains public and unchanged.
 
-No equipment APIs, work-order APIs, user-management CRUD, dashboard functionality, frontend login UI, or cloud deployment were added.
+No work-order APIs, user-management CRUD, dashboard functionality, frontend login/equipment UI, or cloud deployment were added.
 
-## 6. Phase 3 work completed
+## 7. Phase 3 work completed
 
 - Centralized environment-based `DATABASE_URL` configuration.
 - SQLAlchemy 2.x declarative base, naming conventions, lazy engine creation, session factory, and cleanup dependency.
@@ -51,9 +66,9 @@ No equipment APIs, work-order APIs, user-management CRUD, dashboard functionalit
 - Live PostgreSQL migration applied successfully; `alembic current` reports `e98ccb2cbf89 (head)`, and `alembic check` reports no new upgrade operations.
 - Read-only database inspection confirmed `users`, `assets`, `work_orders`, `work_order_updates`, and `maintenance_records`, plus the matching `alembic_version` row.
 
-No authentication endpoints, CRUD APIs, status-transition services, dashboard metrics, seed users, or live data were added.
+No Phase 4 or Phase 5 functionality was added during the Phase 3 implementation.
 
-## 7. Files created or modified
+## 8. Files created or modified
 
 Created:
 
@@ -78,8 +93,11 @@ Created:
 - `backend/app/schemas/__init__.py`
 - `backend/app/schemas/auth.py`
 - `backend/app/schemas/user.py`
+- `backend/app/schemas/asset.py`
+- `backend/app/api/routes/assets.py`
 - `backend/tests/conftest.py`
 - `backend/tests/test_auth.py`
+- `backend/tests/test_assets.py`
 - `backend/app/models/maintenance_record.py`
 - `backend/alembic.ini`
 - `backend/alembic/env.py`
@@ -100,9 +118,9 @@ Modified:
 - `docs/DEVELOPMENT_ROADMAP.md`
 - `docs/PROJECT_STATUS.md`
 
-No frontend files were changed in Phase 4. Local `.env`, `.venv`, caches, build output, and logs remain ignored and untracked.
+No frontend files were changed in Phases 4–5. Local `.env`, `.venv`, caches, build output, and logs remain ignored and untracked.
 
-## 8. Environment and database versions verified
+## 9. Environment and database versions verified
 
 - Git `2.46.0.windows.1`
 - Python `3.12.10`
@@ -113,7 +131,7 @@ No frontend files were changed in Phase 4. Local `.env`, `.venv`, caches, build 
 - PostgreSQL listener: `127.0.0.1:5432`, accepting connections
 - Docker Desktop: unavailable/not running; not needed for Phase 3
 
-## 9. Dependencies added
+## 10. Dependencies added
 
 Added to `backend/requirements.txt` and installed into `backend/.venv`:
 
@@ -126,7 +144,7 @@ Added to `backend/requirements.txt` and installed into `backend/.venv`:
 
 Existing Phase 2 dependencies were preserved. `pip check` reported no broken requirements.
 
-## 10. Commands actually executed
+## 11. Commands actually executed
 
 - Read all project instructions, specification, status, roadmap, decisions, README, and existing source/manifests.
 - Inspected Git state and existing files; repository started this phase clean at `d626d8f`.
@@ -147,8 +165,10 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - Generated a local JWT secret in ignored `backend/.env` without printing it.
 - Ran the authentication test suite against PostgreSQL using rollback-only transaction fixtures.
 - Exercised valid login and `/api/auth/me`, generic credential failures, disabled/deleted users, malformed/expired/bad-signature tokens, and role authorization.
+- Ran the complete equipment API suite against PostgreSQL using rollback-only transaction fixtures.
+- Verified asset API route registration through the FastAPI application and OpenAPI route metadata.
 
-## 11. Tests and verification results
+## 12. Tests and verification results
 
 - Database metadata tests: **passed as part of the full suite**.
 - Full backend suite, including the Phase 2 health test: **passed, 5 passed in 0.77s**.
@@ -165,32 +185,35 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - Tests use the configured PostgreSQL database through rollback-only transactions; no test accounts persist.
 - `pip check`: **passed** after adding `pwdlib` and `PyJWT`.
 - Python compilation and `git diff --check`: **passed**.
+- Full backend suite including Phase 4 regression tests: **passed, 20 passed in 1.88s**.
+- Equipment API integration tests: **passed against PostgreSQL** with rollback-only isolation; no test assets persisted.
+- Equipment API contract: **passed** for 401/403/404/409/422 behavior, search/filter/status pagination, all role permissions, partial updates, duplicate handling, and repeated deactivation.
 
-## 12. Current bugs and blockers
+## 13. Current bugs and blockers
 
-- No Phase 4 blockers remain.
+- No Phase 5 blockers remain.
 - Credentials remain local-only and are not tracked; another developer must configure their own `backend/.env`.
 - Stateless JWTs are not server-revocable before expiry; logout requires client-side token disposal.
 
-## 13. Incomplete tasks
+## 14. Incomplete tasks
 
-- Implement Phase 5 equipment-management APIs.
+- Implement Phase 6 work-order and maintenance APIs.
 - Preserve the existing migration history and use new reviewed migrations for future schema changes.
 
-## 14. Decisions awaiting approval
+## 15. Decisions awaiting approval
 
-- The Phase 4 design choices are recorded in D-012 and the project specification.
-- No Phase 4 decision is awaiting approval.
+- The Phase 5 API contract is recorded in D-013 and the project specification.
+- No Phase 5 decision is awaiting approval.
 
-## 15. Next phase
+## 16. Next phase
 
-Phase 5 — Equipment-management APIs.
+Phase 6 — Work-order and maintenance APIs.
 
-## 16. Exact next action
+## 17. Exact next action
 
-Review the Phase 4 commit, then implement authenticated equipment create/list/detail/update/deactivate APIs with role checks and tests.
+Review the Phase 5 commit, then implement authenticated work-order creation, assignment, status transitions, activity history, and maintenance completion APIs with role checks and tests.
 
-## 17. Acceptance criteria before proceeding
+## 18. Acceptance criteria before proceeding
 
 - All five ORM models are registered and metadata tests pass.
 - Alembic imports the shared metadata and the initial migration renders valid PostgreSQL SQL.
@@ -206,7 +229,10 @@ Review the Phase 4 commit, then implement authenticated equipment create/list/de
 - Disabled/deleted users cannot use stale tokens.
 - Role dependencies return 403 for authenticated but unauthorized users.
 - Initial administrator provisioning is local-only and requires the migrated database.
+- Asset list responses use `{items, total, skip, limit}` with a maximum limit of 100 and deterministic ordering.
+- Asset read access is authenticated for all roles; asset writes are restricted to administrators and managers.
+- Deactivation preserves asset records and is idempotent.
 
-## Phase 4 verification result
+## Phase 5 verification result
 
-Phase 4 is **complete** as of October 10, 2026. Authentication, JWT validation, role authorization, administrator provisioning, PostgreSQL-backed rollback-isolated tests, compilation, dependency checks, and the public health endpoint all passed. No credentials or environment files are tracked, and no Phase 5 functionality was added.
+Phase 5 is **complete** as of October 10, 2026. Equipment APIs, authorization, validation, filtering, pagination, PostgreSQL-backed rollback-isolated integration tests, compilation, dependency checks, Phase 4 regressions, and the public health endpoint all passed. No credentials or environment files are tracked, and no Phase 6 functionality was added.
