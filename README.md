@@ -1,6 +1,12 @@
 # FixFlow
 
-FixFlow is a planned smart maintenance and repair management platform for small and medium-sized organizations. It is intended to replace fragmented spreadsheet, phone, and messaging workflows with a single place to manage equipment, repair requests, technician assignments, progress, maintenance history, and operational reporting.
+FixFlow is a maintenance and repair management platform for small and medium-sized organizations. It is intended to replace fragmented spreadsheet, phone, and messaging workflows with a single place to manage equipment, repair requests, technician assignments, progress, maintenance history, and operational reporting.
+
+## Current status
+
+Phase 2 is complete: the repository contains a minimal FastAPI backend and React/Vite frontend skeleton. The frontend calls the real backend health endpoint and displays connected and disconnected states.
+
+Business features such as authentication, database models, equipment, work orders, maintenance records, and dashboards have not been implemented yet.
 
 ## Planned features
 
@@ -12,13 +18,13 @@ FixFlow is a planned smart maintenance and repair management platform for small 
 - Dashboard metrics calculated from real database records.
 - Automated tests, migration-based database changes, and reproducible local setup.
 
-## Planned technology stack
+## Technology stack
 
-- Frontend: React, Vite, JavaScript, React Router, HTML, and CSS.
-- Backend: Python 3.12, FastAPI, Pydantic, and SQLAlchemy 2.x.
-- Database: PostgreSQL with Alembic migrations.
-- Testing: Pytest and FastAPI TestClient; Vitest and React Testing Library if time permits.
-- Delivery: Git-based checkpoints, local-first verification, then optional Docker/AWS work.
+- Frontend: React, Vite, JavaScript, HTML, and CSS.
+- Backend: Python 3.12, FastAPI, Pydantic, and Uvicorn.
+- Planned database: PostgreSQL with SQLAlchemy 2.x and Alembic; not connected yet.
+- Testing: Pytest and FastAPI TestClient.
+- Delivery: Git-based checkpoints and local-first verification.
 
 ## Repository structure
 
@@ -33,24 +39,71 @@ FixFlow/
 │   ├── DEVELOPMENT_ROADMAP.md
 │   └── DECISIONS.md
 ├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   └── main.py
+│   ├── tests/test_health.py
+│   ├── requirements.txt
+│   └── .env.example
 └── frontend/
+    ├── src/
+    │   ├── App.jsx
+    │   ├── main.jsx
+    │   └── styles.css
+    ├── index.html
+    ├── package.json
+    ├── package-lock.json
+    ├── vite.config.js
+    └── .env.example
 ```
+
+## Local development
+
+The backend and frontend run in separate PowerShell windows. PostgreSQL is not required until Phase 3.
+
+### Backend
+
+From the repository root:
+
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m pytest -q
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Backend URLs:
+
+- Health check: `http://127.0.0.1:8000/api/health`
+- Interactive API docs: `http://127.0.0.1:8000/docs`
+
+If PowerShell blocks script activation, use the virtual-environment interpreter directly, for example `./.venv/Scripts/python.exe -m pytest -q` from `backend`. In the original Phase 2 workspace, Python's bundled `ensurepip` required a local pip bootstrap before the normal activation commands worked; this was an environment-specific issue, not an application requirement.
+
+### Frontend
+
+In a second PowerShell window, from the repository root:
+
+```powershell
+cd frontend
+npm install
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+
+Open `http://127.0.0.1:5173` or `http://localhost:5173`. The frontend reads `VITE_API_BASE_URL` from `.env`; copy `.env.example` to `.env` only when a different backend URL is needed. Do not place secrets in frontend environment variables.
+
+### Stopping the servers
+
+When running in the foreground, press `Ctrl+C` in each server's PowerShell window. The frontend's Vite process and backend's Uvicorn process can then be restarted with the commands above.
 
 ## Documentation
 
-- [Project specification](docs/PROJECT_SPEC.md) — scope, requirements, planned data model, workflows, and acceptance criteria.
-- [Project status](docs/PROJECT_STATUS.md) — verified current state, commands, tests, blockers, and next action.
+- [Project specification](docs/PROJECT_SPEC.md) — scope, requirements, data model, workflows, and acceptance criteria.
+- [Project status](docs/PROJECT_STATUS.md) — verified current state, environment, commands, tests, blockers, and next action.
 - [Development roadmap](docs/DEVELOPMENT_ROADMAP.md) — ordered implementation lifecycle.
 - [Decision log](docs/DECISIONS.md) — approved technical choices and provisional decisions.
 - [Agent instructions](AGENTS.md) — persistent rules for future development work.
-
-## Current implementation status
-
-Phase 1 establishes project documentation and repository structure only. The application has not been implemented, no live database has been created, and no application functionality should be considered working yet.
-
-## Future setup documentation
-
-Environment setup, dependency installation, PostgreSQL provisioning, migrations, backend/frontend run commands, test commands, and configuration examples will be added during Phase 2. Do not infer working setup commands from this README before that phase is complete.
 
 ## Scope note
 

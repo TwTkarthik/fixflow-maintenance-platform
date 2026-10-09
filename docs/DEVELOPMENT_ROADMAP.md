@@ -2,7 +2,11 @@
 
 This roadmap is the intended lifecycle. Work proceeds in order, and the status document records what is actually underway. A later phase must not be treated as complete because its files or plans exist.
 
+**Current roadmap state:** Phases 1 and 2 are complete and verified. Phase 3 is next; all later phases remain not started.
+
 ## Phase 1 — Project foundation and master documentation
+
+**Status:** Complete and verified on October 9, 2026.
 
 **Objective:** Establish the project definition, constraints, architecture direction, status tracking, and repository foundation.
 
@@ -15,6 +19,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 **Completion criteria:** Required documents exist; approved decisions and open assumptions are distinguishable; status accurately says application functionality is not implemented; no secrets or unrelated files are added; repository state is verified.
 
 ## Phase 2 — Environment setup and application skeleton
+
+**Status:** Complete and verified on October 9, 2026.
 
 **Objective:** Create the minimal runnable FastAPI and React/Vite skeleton without implementing business features.
 

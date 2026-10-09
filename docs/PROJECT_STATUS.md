@@ -2,96 +2,149 @@
 
 ## 1. Project status and last-updated date
 
-**Status:** Phase 1 foundation completed and verified; application implementation has not started.
+**Status:** Phase 2 foundation and application skeleton completed and verified. Business features have not been implemented.
 **Last updated:** October 9, 2026
 
 ## 2. Current phase
 
-Phase 2 — Environment setup and application skeleton is next. Phase 1 work is complete for the documented foundation and is awaiting review before implementation continues.
+Phase 3 — Database models and migrations is next. Phase 2 is complete for the minimal local skeleton and is awaiting review before database work begins.
 
 ## 3. Overall completion state
 
-Documentation and repository foundation: complete.
-Application functionality: 0% implemented.
-Database, authentication, APIs, frontend, integration, automated tests, Docker, and AWS deployment: not started.
+Project foundation and runnable skeleton: complete.
+Business application functionality: not implemented.
+Database models, migrations, authentication, equipment, work orders, dashboards, Docker, and AWS deployment: not started.
 
 ## 4. Completed phases
 
-- **Phase 1 — Project foundation and master documentation:** Required documents, ignore rules, and minimal directory placeholders created and inspected. Git repository initialized locally. No application feature was implemented.
+- **Phase 1 — Project foundation and master documentation:** Documentation, ignore rules, minimal structure, and local Git repository created and verified.
+- **Phase 2 — Environment setup and application skeleton:** Python 3.12 FastAPI health API, project-local backend environment, React/Vite frontend, local configuration examples, backend health test, and run documentation created and verified.
 
 ## 5. Features actually implemented
 
-None. This phase intentionally created no backend or frontend application features, live database, dependencies, authentication, API, or UI.
+- FastAPI `GET /api/health` returning `{"status":"ok","service":"fixflow-api"}`.
+- FastAPI CORS configuration for the two expected local Vite origins.
+- React/Vite landing screen that requests the real backend health endpoint on load.
+- Frontend loading, connected, and disconnected/error states.
+- Frontend display of the actual successful backend JSON response.
+- One automated backend health test using Pytest and FastAPI TestClient.
+
+No equipment management, work orders, authentication, database models, migrations, dashboards, or other later-phase business features are implemented.
 
 ## 6. Files created or modified
 
-- `AGENTS.md`
+Created:
+
+- `backend/app/__init__.py`
+- `backend/app/main.py`
+- `backend/tests/test_health.py`
+- `backend/requirements.txt`
+- `backend/.env.example`
+- `frontend/package.json`
+- `frontend/package-lock.json`
+- `frontend/vite.config.js`
+- `frontend/index.html`
+- `frontend/src/main.jsx`
+- `frontend/src/App.jsx`
+- `frontend/src/styles.css`
+- `frontend/.env.example`
+
+Modified:
+
 - `README.md`
-- `.gitignore`
-- `docs/PROJECT_SPEC.md`
 - `docs/PROJECT_STATUS.md`
 - `docs/DEVELOPMENT_ROADMAP.md`
-- `docs/DECISIONS.md`
+
+Removed because the directories now contain real files:
+
 - `backend/.gitkeep`
 - `frontend/.gitkeep`
 
-No pre-existing files were modified; the workspace was empty before this phase.
+Ignored local artifacts created during verification include `backend/.venv/`, `frontend/node_modules/`, frontend build output, and local server logs. They are not tracked.
 
-## 7. Commands actually executed
+## 7. Environment versions detected
 
-- `Get-ChildItem -Force | Select-Object Mode,Length,LastWriteTime,Name`
-- `rg --files -uu` (workspace was empty)
-- `git --version`
-- `git rev-parse --is-inside-work-tree` (not a repository before initialization)
-- `git status --short --branch` (not a repository before initialization)
-- `New-Item -ItemType Directory -Force -Path 'backend','frontend','docs'`
-- Local file creation via the patch operation for the documents and placeholders listed above.
-- Post-creation file inspection and content checks.
-- `git init`
-- `git add --all; git diff --cached --check; git commit -m "docs: establish FixFlow project foundation"`
-- `git status --short --branch` and `git remote -v`
-- Initial commit created successfully with message `docs: establish FixFlow project foundation`; no remote is configured and the working tree is clean.
+- Git `2.46.0.windows.1`
+- Python `3.12.10`
+- Node.js `v22.12.0`
+- npm `11.2.0`
+- PostgreSQL client `18.4` detected but not used in Phase 2
+- Docker `29.6.2` detected but not used in Phase 2
 
-## 8. Tests actually run and results
+## 8. Dependencies installed
 
-- No application tests were run because no application exists yet.
-- Structural/content verification was run after creation: all required files were checked for existence; the specification, roadmap, decision log, README, and status were reviewed for consistency; no credentials or secret values were added; no feature was marked as implemented.
-- Git status was checked after repository initialization and the documentation checkpoint.
+Backend requirements, installed into `backend/.venv`:
 
-## 9. Current bugs and blockers
+- FastAPI `0.115.12`
+- Uvicorn `0.34.2`
+- httpx `0.28.1`
+- Pytest `8.4.2`
 
-- No known application bugs.
-- No prerequisite blocker for Phase 2 was found during this phase.
-- Local runtime prerequisites (Python 3.12, Node.js/Vite tooling, and PostgreSQL provisioning) have not yet been checked or installed; that belongs to Phase 2.
+The environment also contains the required transitive packages. Frontend dependencies were installed from `frontend/package.json`; npm reported zero vulnerabilities for the installed dependency tree.
 
-## 10. Incomplete tasks
+## 9. Commands actually executed
 
-- Resolve provisional schema and authentication details during their implementation phases.
-- Create the minimal FastAPI and React/Vite application skeleton.
-- Document and verify environment setup before adding business features.
+- Workspace/documentation inspection with `Get-Content`, `Get-ChildItem`, `rg --files -uu`, and Git status checks.
+- Runtime checks: `git --version`, `python --version`, `node --version`, `npm --version`, `psql --version`, and `docker --version`.
+- `python -m venv backend\.venv` (the bundled `ensurepip` step failed in this Windows environment; the environment directory was created without pip).
+- `python -m pip --python backend\.venv\Scripts\python.exe install ...` to install the declared requirements and bootstrap pip into the project-local environment.
+- `npm install` in `frontend`.
+- `backend\.venv\Scripts\python.exe -m pytest -q` with local loopback access.
+- `npm run build` in `frontend`.
+- FastAPI server start on `127.0.0.1:8000` and Vite server start on `127.0.0.1:5173`.
+- HTTP verification of `/api/health` and `/docs` with PowerShell `Invoke-WebRequest`.
+- Browser verification of the connected frontend, actual API response, and disconnected state after stopping the backend.
+- Backend restart and browser re-verification of the connected state.
+- Git diff/status review and local Phase 2 checkpoint preparation.
 
-## 11. Decisions awaiting approval
+## 10. Tests and verification results
 
-- No immediate Phase 1 approval is required beyond review of the project definition and roadmap.
-- Provisional implementation details listed in `docs/PROJECT_SPEC.md` and decision D-010 must be resolved before dependent features are considered complete.
+- Backend health test: **passed, 1 passed in 0.45s**.
+- Frontend production build: **passed** with Vite `6.4.4`.
+- Backend runtime: **passed**, `GET /api/health` returned HTTP 200 and the expected JSON.
+- Interactive API documentation: **passed**, `/docs` returned HTTP 200 and contained Swagger UI.
+- Frontend connected state: **passed**, browser showed “API connected” and the actual backend JSON.
+- Frontend failure state: **passed**, browser showed “API disconnected” with a usable recovery message when the backend was stopped.
+- Frontend recovery: **passed**, browser showed the connected state again after the backend restarted.
+- Browser console logs were not separately queried because the available browser surface exposed DOM/screenshot verification but not a console-log API; server logs showed normal startup with no application errors.
 
-## 12. Next phase
+## 11. Current bugs and blockers
 
-Phase 2 — Environment setup and application skeleton.
+- No known Phase 2 application bugs or critical blockers.
+- This Windows sandbox blocks local socketpair/loopback behavior for some normal-sandbox test commands; the same TestClient test passed using the permitted local verification execution path.
+- The standard `python -m venv` command encountered an environment-specific `ensurepip` failure, so this workspace required pip bootstrapping through the global Python pip manager. The resulting project-local environment is working.
 
-## 13. Exact next action
+## 12. Incomplete tasks
 
-After reviewing this foundation, inspect available Python 3.12, Node.js/npm, and PostgreSQL tooling, then create and verify the minimal FastAPI and React/Vite skeleton without implementing MVP business features.
+- PostgreSQL has not been connected or configured; database work belongs to Phase 3.
+- Authentication, authorization, equipment, work orders, maintenance records, dashboards, and all other MVP business features remain unimplemented.
+- Docker and AWS deployment remain intentionally out of scope for this phase.
 
-## 14. Acceptance criteria before proceeding
+## 13. Decisions awaiting approval
 
-- Phase 1 required documents exist and are internally consistent.
-- The README accurately states that the application is not implemented.
-- The status document records actual work and does not claim application tests or features.
-- No credentials, live database, dependencies, deployment, or unrelated files were added.
-- Git is initialized locally with no remote configured and the documentation checkpoint is inspectable.
-- The user has had an opportunity to review the foundation before Phase 2 begins.
+- No new product or architecture decision was required in Phase 2.
+- The provisional schema and authentication decisions in `docs/PROJECT_SPEC.md` and D-010 remain open for their implementation phases.
 
-## Phase 1 verification result
+## 14. Next phase
 
-The Phase 1 acceptance criteria passed on October 9, 2026, subject to the Git commit result recorded during final verification. Work stops here for user review; Phase 2 is not being started automatically.
+Phase 3 — Database models and migrations.
+
+## 15. Exact next action
+
+Confirm the remaining database assumptions, verify local PostgreSQL provisioning, then implement SQLAlchemy models and the initial Alembic migration from an empty database. Do not begin authentication or business APIs until the schema foundation is verified.
+
+## 16. Acceptance criteria before proceeding
+
+- Phase 2 environment versions and dependencies are documented.
+- Backend starts locally and `/api/health` returns the expected JSON.
+- The automated health test passes.
+- Frontend builds and starts locally.
+- Frontend displays the real connected response and a usable backend-unavailable state.
+- Run instructions match the files and scripts in the repository.
+- No secrets, virtual environments, `node_modules`, build output, or logs are tracked.
+- Only Phase 2 scope was implemented.
+- Git and project documentation accurately reflect the completed work and next phase.
+
+## Phase 2 verification result
+
+All Phase 2 completion criteria passed on October 9, 2026. A local Git checkpoint was prepared with a clean working tree. Work stops here for user review; Phase 3 is not being started automatically.
