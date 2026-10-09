@@ -2,7 +2,7 @@
 
 This roadmap is the intended lifecycle. Work proceeds in order, and the status document records what is actually underway. A later phase must not be treated as complete because its files or plans exist.
 
-**Current roadmap state:** Phases 1–3 are complete and verified. The local PostgreSQL schema is at Alembic revision `e98ccb2cbf89`. Phase 4 is next; all later phases remain not started.
+**Current roadmap state:** Phases 1–4 are complete and verified. The local PostgreSQL schema is at Alembic revision `e98ccb2cbf89`. Phase 5 is next; all later phases remain not started.
 
 ## Phase 1 — Project foundation and master documentation
 
@@ -47,6 +47,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 **Completion criteria:** Empty database upgrades successfully; constraints and relationships match the approved specification; tests isolate database state; no manual-only schema steps are required.
 
 ## Phase 4 — Authentication and authorization
+
+**Status:** Complete and verified on October 10, 2026. JWT login, active-user resolution, role dependencies, administrator provisioning, and security tests are implemented; the frontend login UI and business APIs remain intentionally deferred.
 
 **Objective:** Provide secure login, token validation, user identity, and backend-enforced roles.
 

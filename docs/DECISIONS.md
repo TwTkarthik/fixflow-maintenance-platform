@@ -67,7 +67,7 @@ This log records decisions that constrain implementation. “Final” means appr
 
 ## D-010 — Explicitly provisional implementation details
 
-- **Decision:** Defer UUID versus integer keys, exact JWT storage/refresh/revocation, API envelopes, some technician visibility rules, due-date policy, and maintenance-record cardinality until their implementation phases.
+- **Decision:** Defer UUID versus integer keys, frontend JWT storage and refresh/revocation mechanisms, API envelopes, some technician visibility rules, due-date policy, and maintenance-record cardinality until their implementation phases.
 - **Reason:** These details need concrete API/database context; recording them as assumptions prevents accidental invention while preserving forward progress.
 - **Trade-offs:** Later phases must resolve and record these decisions before dependent features are considered complete.
 - **Status:** Provisional; resolution is required in Phases 3–6 as applicable.
@@ -78,3 +78,10 @@ This log records decisions that constrain implementation. “Final” means appr
 - **Reason:** These choices are readable for an MVP learner, preserve history, work cleanly with PostgreSQL, and avoid premature native enum lifecycle complexity while keeping allowed values database-enforced.
 - **Trade-offs:** Integer identifiers are less globally unique than UUIDs; check constraints require explicit migration updates when vocabularies change; one maintenance record per work order may need revision if repeat service events are later required.
 - **Status:** Final for the initial schema, subject to future reviewed requirements changes.
+
+## D-012 — Phase 4 authentication design
+
+- **Decision:** Use `pwdlib` with its recommended Argon2id configuration for password hashes, PyJWT with HS256 for short-lived access tokens, a required environment-provided `JWT_SECRET_KEY`, a 30-minute default expiry, and a local interactive administrator-provisioning command. Logout is client-side token disposal because server-side JWT revocation is not implemented in this phase.
+- **Reason:** These are maintained, explicit mechanisms that keep secrets out of source control, avoid plaintext passwords, support FastAPI Bearer documentation, and provide a safe bootstrap without public administrator registration.
+- **Trade-offs:** Stateless tokens cannot be individually revoked before expiry; future refresh/revocation requirements may require a token-version or deny-list design. The first administrator must be provisioned from a trusted local environment.
+- **Status:** Final for Phase 4, subject to future reviewed security requirements.

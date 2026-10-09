@@ -4,9 +4,9 @@ FixFlow is a maintenance and repair management platform for small and medium-siz
 
 ## Current status
 
-Phases 1–3 are complete and verified: the repository contains a minimal FastAPI backend, React/Vite frontend skeleton, SQLAlchemy models, and an initial Alembic migration applied to the local PostgreSQL development database.
+Phases 1–4 are complete and verified: the repository contains a minimal FastAPI backend, React/Vite frontend skeleton, SQLAlchemy models, an applied Alembic migration, JWT authentication, and backend role dependencies.
 
-Business features such as authentication, equipment APIs, work-order APIs, maintenance workflows, and dashboards have not been implemented yet.
+Equipment APIs, work-order APIs, maintenance workflows, dashboards, and the frontend login UI have not been implemented yet.
 
 ## Planned features
 
@@ -60,7 +60,7 @@ FixFlow/
 
 ## Local development
 
-The backend and frontend run in separate PowerShell windows. PostgreSQL is required for the Phase 3 database layer, but the Phase 2 health endpoint remains independent of it.
+The backend and frontend run in separate PowerShell windows. PostgreSQL is required for the database-backed API, but the public Phase 2 health endpoint remains independent of it.
 
 ### Backend
 
@@ -96,6 +96,22 @@ python -m alembic check
 ```
 
 The expected URL shape is `postgresql+psycopg://USER:PASSWORD@127.0.0.1:5432/fixflow_dev`. The local database is currently migrated to revision `e98ccb2cbf89`. See [database design](docs/DATABASE_DESIGN.md) for the schema and safe migration workflow.
+
+### Authentication
+
+Phase 4 provides:
+
+- `POST /api/auth/login` with a JSON email/password body.
+- `GET /api/auth/me` with a Bearer access token.
+- Argon2id password hashing through `pwdlib`.
+- HS256 JWT access tokens with a configurable 30-minute default expiry.
+- Backend role dependencies for Administrator, Manager, and Technician routes.
+
+Configure `JWT_SECRET_KEY` in `backend/.env` with a random secret of at least 32 characters. Generate one locally without printing it using Python's `secrets.token_urlsafe(48)`, then store it only in `backend/.env`.
+
+Create the first administrator interactively after the Phase 3 migration is applied with `python -m app.cli.create_admin`.
+
+There is no public registration endpoint. Logout for stateless JWT authentication means discarding the token on the client; server-side revocation is not implemented in this phase.
 
 ### Frontend
 

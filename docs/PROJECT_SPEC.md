@@ -39,7 +39,7 @@ The MVP should:
 9. Have automated coverage for important workflows and permission boundaries.
 10. Provide reproducible setup, migration, test, and run instructions for another developer.
 
-The MVP is accepted only when the implemented workflows, tests, documentation, and local demonstration have been verified together. The current repository contains only the Phase 2 skeleton and Phase 3 database foundation; business application implementation has not started.
+The MVP is accepted only when the implemented workflows, tests, documentation, and local demonstration have been verified together. The current repository contains the Phase 2 skeleton, Phase 3 database foundation, and Phase 4 authentication foundation; equipment, work-order, dashboard, and frontend authentication functionality remain to be implemented.
 
 ## 3. Functional requirements
 
@@ -50,6 +50,8 @@ The MVP is accepted only when the implemented workflows, tests, documentation, a
 - Authenticated requests use a JWT with an explicit expiration policy.
 - Administrators can manage user accounts and roles.
 - Backend dependencies or equivalent guards enforce authentication and role authorization.
+- Phase 4 uses Argon2id password hashes through `pwdlib`, HS256 JWT access tokens with a configurable expiry, and an interactive local administrator-provisioning command.
+- There is no public user-registration endpoint. Stateless logout consists of discarding the client token; server-side token revocation is not part of the initial implementation.
 
 ### Equipment management
 
@@ -307,7 +309,7 @@ Local-first development and verification come before Docker packaging or optiona
 - Return useful but non-sensitive error messages.
 - Review authentication, authorization, input handling, secret handling, and dependency risks before release.
 
-The exact JWT storage strategy in the browser and refresh/revocation approach are provisional decisions for the authentication phase. The MVP must still have an explicit threat-aware choice before implementation is considered complete.
+The frontend JWT storage strategy and any refresh/revocation mechanism remain future integration decisions. The current backend uses short-lived stateless access tokens and documents client-side logout.
 
 ## 13. Testing expectations
 
@@ -346,6 +348,7 @@ The architecture remains a modular monolith. Additional frameworks or services r
 - Database migrations and automated testing before deployment.
 - Phase order in `docs/DEVELOPMENT_ROADMAP.md`.
 - Integer primary keys, timezone-aware timestamps, database-enforced value constraints, and one maintenance record per work order for the initial schema.
+- Argon2id password hashing, HS256 JWT access tokens with environment-based secrets and explicit expiry, and trusted local administrator provisioning for Phase 4.
 
 ### Assumptions requiring verification during implementation
 
@@ -360,7 +363,7 @@ Open assumptions must be resolved in the relevant implementation phase and recor
 
 ## 16. Known limitations
 
-- No business API, authentication, or live database integration exists yet; the Phase 3 ORM models, migration code, and metadata tests are implemented.
+- No business API or frontend authentication UI exists yet; the Phase 3 ORM models and Phase 4 authentication foundation are implemented and locally verified.
 - The MVP is not multi-tenant.
 - Notifications, file attachments, inventory/parts, preventive-maintenance scheduling, mobile apps, machine learning, advanced analytics, microservices, Kubernetes, and production AWS operations are excluded unless later approved.
 - The current specification describes planned behavior; implementation and verification remain outstanding.
