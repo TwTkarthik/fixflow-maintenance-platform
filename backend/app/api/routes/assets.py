@@ -5,12 +5,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.api.dependencies import get_current_user, require_roles
 from app.db.session import get_db
-from app.models import Asset, AssetStatus, User, UserRole
+from app.models import Asset, AssetStatus, MaintenanceRecord, User, UserRole, WorkOrder
 from app.schemas.asset import AssetCreate, AssetListResponse, AssetResponse, AssetUpdate
+from app.schemas.work_order import MaintenanceRecordResponse, UserSummary
 
 
 router = APIRouter(prefix="/api/assets", tags=["assets"])
@@ -36,6 +37,25 @@ def _commit_or_conflict(db: Session) -> None:
         if "asset_code" in str(error.orig).lower() or "uq_assets_asset_code" in str(error.orig):
             raise _duplicate_asset_code() from error
         raise
+
+
+def _maintenance_response(record: MaintenanceRecord) -> MaintenanceRecordResponse:
+    return MaintenanceRecordResponse(
+        id=record.id,
+        asset_id=record.asset_id,
+        work_order_id=record.work_order_id,
+        performed_by_id=record.performed_by_id,
+        performed_by=UserSummary(
+            id=record.performed_by.id,
+            full_name=record.performed_by.full_name,
+            email=record.performed_by.email,
+            role=record.performed_by.role,
+        ),
+        outcome=record.outcome,
+        work_performed=record.work_performed,
+        completed_at=record.completed_at,
+        created_at=record.created_at,
+    )
 
 
 @router.get("", response_model=AssetListResponse)
@@ -104,6 +124,34 @@ def create_asset(
     db.refresh(asset)
     _commit_or_conflict(db)
     return AssetResponse.model_validate(asset)
+
+
+@router.get(
+    "/{asset_id}/maintenance-history",
+    response_model=list[MaintenanceRecordResponse],
+)
+def get_asset_maintenance_history(
+    asset_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> list[MaintenanceRecordResponse]:
+    """Return completed maintenance records visible to the current user."""
+
+    asset = db.get(Asset, asset_id)
+    if asset is None:
+        raise _asset_not_found()
+    query = (
+        select(MaintenanceRecord)
+        .options(joinedload(MaintenanceRecord.performed_by))
+        .join(WorkOrder, WorkOrder.id == MaintenanceRecord.work_order_id)
+        .where(MaintenanceRecord.asset_id == asset_id)
+    )
+    if current_user.role == UserRole.TECHNICIAN:
+        query = query.where(WorkOrder.assigned_to_id == current_user.id)
+    records = db.scalars(
+        query.order_by(MaintenanceRecord.completed_at, MaintenanceRecord.id)
+    ).all()
+    return [_maintenance_response(record) for record in records]
 
 
 @router.get("/{asset_id}", response_model=AssetResponse)

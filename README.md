@@ -4,9 +4,9 @@ FixFlow is a maintenance and repair management platform for small and medium-siz
 
 ## Current status
 
-Phases 1–5 are complete and verified: the repository contains a minimal FastAPI backend, React/Vite frontend skeleton, SQLAlchemy models, an applied Alembic migration, JWT authentication, backend role dependencies, and authenticated equipment APIs.
+Phases 1–6 are complete and verified: the repository contains a minimal FastAPI backend, React/Vite frontend skeleton, SQLAlchemy models, an applied Alembic migration, JWT authentication, backend role dependencies, authenticated equipment APIs, and PostgreSQL-backed work-order/maintenance workflows.
 
-Work-order APIs, maintenance workflows, dashboards, and the frontend login/equipment UI have not been implemented yet.
+Dashboards, frontend login/equipment/work-order UI, Docker packaging, and AWS deployment have not been implemented yet.
 
 ## Planned features
 
@@ -124,6 +124,22 @@ Phase 5 provides authenticated equipment management:
 - `POST /api/assets/{asset_id}/deactivate` — administrators and managers deactivate without deleting.
 
 List responses use `{items, total, skip, limit}` and are ordered by asset ID. `limit` is bounded from 1 through 100 and defaults to 20. Technicians have read-only access. Duplicate asset codes return HTTP 409; missing/invalid authentication returns 401; authenticated write attempts by technicians return 403; missing assets return 404; invalid input returns 422.
+
+### Work-order and maintenance API
+
+Phase 6 provides authenticated work-order workflows:
+
+- `GET /api/work-orders` — deterministic paginated listing with status, priority, asset, assignee, creator, overdue, and text-search filters.
+- `POST /api/work-orders` — administrators and managers create requests for active assets; creation writes an initial history event.
+- `GET /api/work-orders/{work_order_id}` — administrators/managers can view all work orders; technicians can view only assigned work.
+- `PATCH /api/work-orders/{work_order_id}` — administrators and managers update title, description, priority, and due date only.
+- `POST /api/work-orders/{work_order_id}/assign` — administrators and managers assign or reassign active technician accounts.
+- `POST /api/work-orders/{work_order_id}/status` — validated status transitions with role and assignment checks.
+- `POST /api/work-orders/{work_order_id}/notes` and `GET /api/work-orders/{work_order_id}/history` — append-only notes and activity history.
+- `GET /api/work-orders/{work_order_id}/maintenance` — read a completed work order's maintenance record.
+- `GET /api/assets/{asset_id}/maintenance-history` — chronological maintenance records for an asset, scoped for technicians.
+
+The approved statuses are `open`, `assigned`, `in_progress`, `on_hold`, `completed`, and `cancelled`. Assignment moves an open order to `assigned`; reassignment preserves the current nonterminal status. Completing an assigned order requires a nonblank completion summary and creates exactly one maintenance record in the same transaction as the status and history changes. Technicians can list, inspect, transition, and note only their own assigned nonterminal work; managers and administrators manage all work orders. Work-order list responses use `{items, total, skip, limit}` with a default limit of 20 and a maximum of 100.
 
 ### Frontend
 

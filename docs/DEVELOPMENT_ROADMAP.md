@@ -2,7 +2,7 @@
 
 This roadmap is the intended lifecycle. Work proceeds in order, and the status document records what is actually underway. A later phase must not be treated as complete because its files or plans exist.
 
-**Current roadmap state:** Phases 1–5 are complete and verified. The local PostgreSQL schema is at Alembic revision `e98ccb2cbf89`. Phase 6 is next; all later phases remain not started.
+**Current roadmap state:** Phases 1–6 are complete and verified. The local PostgreSQL schema remains at Alembic revision `e98ccb2cbf89`; Phase 6 required no schema migration. Phase 7 is next; all later phases remain not started.
 
 ## Phase 1 — Project foundation and master documentation
 
@@ -76,6 +76,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 
 ## Phase 6 — Work-order and maintenance APIs
 
+**Status:** Complete and verified on October 10, 2026. The existing schema was sufficient, so no new Alembic revision was required.
+
 **Objective:** Implement repair requests, assignment, state transitions, updates, notes, and completed maintenance records.
 
 **Planned tasks:** Add work-order CRUD/detail/list filters, priority validation, assignment/reassignment, transition service, append-only history, repair notes, completion validation, maintenance records, and permission tests.
@@ -84,7 +86,7 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 
 **Deliverables:** Work-order, update/history, and maintenance API modules with tests.
 
-**Completion criteria:** Valid and invalid transitions behave as specified; technician scope is enforced; assignment and completion rules are atomic; timestamps and history are preserved; important workflows pass automated tests.
+**Completion criteria:** Valid and invalid transitions behave as specified; technician scope is enforced; assignment and completion rules are atomic; timestamps and history are preserved; important workflows pass automated tests. **Met:** 27 PostgreSQL-backed tests passed, including the Phase 6 workflow tests and all earlier regressions.
 
 ## Phase 7 — Dashboard and reporting APIs
 

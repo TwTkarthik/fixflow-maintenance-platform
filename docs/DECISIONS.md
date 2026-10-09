@@ -92,3 +92,10 @@ This log records decisions that constrain implementation. “Final” means appr
 - **Reason:** The contract is predictable for the future frontend, keeps list queries bounded, preserves historical deactivated records, and matches the approved role matrix.
 - **Trade-offs:** Category and location filters are exact case-insensitive matches rather than free-text contains searches; deactivation has no reactivation endpoint in this phase.
 - **Status:** Final for Phase 5, subject to future reviewed product requirements.
+
+## D-014 — Phase 6 work-order workflow contract
+
+- **Decision:** Build work-order APIs on the existing five-table schema. Use the approved six statuses (`open`, `assigned`, `in_progress`, `on_hold`, `completed`, and `cancelled`), keep assignment and status changes in dedicated endpoints, append creation/assignment/status/note events to `work_order_updates`, and create exactly one `maintenance_records` row when an assigned work order completes.
+- **Reason:** The existing schema already provides the required constrained values, activity event types, timezone-aware timestamps, and unique maintenance-record-per-work-order guarantee. Reusing it avoids an unnecessary migration while preserving history and transaction boundaries.
+- **Trade-offs:** Completion requires an assigned technician and a nonblank summary; `work_performed` defaults to the summary when not supplied. Technicians receive 404 for out-of-scope work orders and maintenance history to avoid revealing another technician's records. There is no post-terminal note or reassignment workflow.
+- **Status:** Final for Phase 6, subject to future reviewed product requirements.

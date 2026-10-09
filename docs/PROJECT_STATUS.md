@@ -2,12 +2,12 @@
 
 ## 1. Project status and last-updated date
 
-**Status:** Phase 5 equipment-management APIs complete and verified; Phase 6 work-order and maintenance APIs is next.
+**Status:** Phase 6 work-order and maintenance APIs complete and verified; Phase 7 dashboard/reporting APIs is next.
 **Last updated:** October 10, 2026
 
 ## 2. Current phase
 
-Phase 6 — Work-order and maintenance APIs is next. Phase 5 is complete, including authenticated equipment listing, filtering, pagination, creation, retrieval, updates, conflict handling, and idempotent deactivation.
+Phase 6 — Work-order and maintenance APIs is complete. Phase 5 remains complete, including authenticated equipment listing, filtering, pagination, creation, retrieval, updates, conflict handling, and idempotent deactivation.
 
 ## 3. Overall completion state
 
@@ -16,7 +16,8 @@ Database model and migration source: implemented and verified.
 Live database schema: migrated and verified at Alembic revision `e98ccb2cbf89`.
 Authentication and authorization: complete.
 Equipment management: complete.
-Work orders, maintenance APIs, dashboards, Docker, and AWS deployment: not started.
+Work orders and maintenance APIs: complete.
+Dashboards, frontend authentication/equipment/work-order UI, Docker, and AWS deployment: not started.
 
 ## 4. Completed phases
 
@@ -37,6 +38,20 @@ Work orders, maintenance APIs, dashboards, Docker, and AWS deployment: not start
 - PostgreSQL-backed rollback-isolated integration tests cover the complete equipment lifecycle.
 
 No work-order CRUD, technician assignment, maintenance completion, dashboard analytics, frontend equipment UI, or cloud deployment was added.
+
+## 6. Phase 6 work completed
+
+- Authenticated `GET /api/work-orders` with deterministic pagination, text search, status/priority/asset/assignee/creator/overdue filters, and technician-scoped totals.
+- Administrator and manager work-order creation for active assets, with server-controlled creator/open status and an atomic initial history event.
+- Safe work-order detail responses and manager/administrator metadata updates for title, description, priority, and due date.
+- Administrator and manager technician assignment/reassignment with active-technician validation, terminal-state protection, no-op suppression, and assignment history.
+- Explicit six-state transition matrix including `on_hold`; technician transitions are limited to assigned work and management-only cancellation/reopening rules remain backend-enforced.
+- Append-only notes and chronological history endpoints; terminal work orders reject new notes.
+- Completion requires an assigned technician and nonblank summary, then atomically updates status/timestamps, appends history, and creates the unique maintenance record.
+- Read-only work-order maintenance and asset maintenance-history endpoints with technician scope enforcement.
+- No Alembic migration was needed; the existing maintenance-record uniqueness constraint and activity model were sufficient.
+
+Phase 6 did not add frontend work-order pages, dashboard analytics, notifications, recurring maintenance, Docker packaging, or cloud deployment.
 
 ## 6. Phase 4 work completed
 
@@ -94,10 +109,15 @@ Created:
 - `backend/app/schemas/auth.py`
 - `backend/app/schemas/user.py`
 - `backend/app/schemas/asset.py`
+- `backend/app/schemas/work_order.py`
 - `backend/app/api/routes/assets.py`
+- `backend/app/api/routes/work_orders.py`
+- `backend/app/services/__init__.py`
+- `backend/app/services/work_orders.py`
 - `backend/tests/conftest.py`
 - `backend/tests/test_auth.py`
 - `backend/tests/test_assets.py`
+- `backend/tests/test_work_orders.py`
 - `backend/app/models/maintenance_record.py`
 - `backend/alembic.ini`
 - `backend/alembic/env.py`
@@ -167,6 +187,8 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - Exercised valid login and `/api/auth/me`, generic credential failures, disabled/deleted users, malformed/expired/bad-signature tokens, and role authorization.
 - Ran the complete equipment API suite against PostgreSQL using rollback-only transaction fixtures.
 - Verified asset API route registration through the FastAPI application and OpenAPI route metadata.
+- Added work-order schemas, transactional services, routes, technician-scope rules, and PostgreSQL-backed workflow tests.
+- Verified work-order route registration and status/assignment/maintenance API behavior through FastAPI TestClient.
 
 ## 12. Tests and verification results
 
@@ -188,30 +210,32 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - Full backend suite including Phase 4 regression tests: **passed, 20 passed in 1.88s**.
 - Equipment API integration tests: **passed against PostgreSQL** with rollback-only isolation; no test assets persisted.
 - Equipment API contract: **passed** for 401/403/404/409/422 behavior, search/filter/status pagination, all role permissions, partial updates, duplicate handling, and repeated deactivation.
+- Phase 6 PostgreSQL-backed workflow suite: **passed, 27 passed in 3.05s**; this includes all Phase 2–5 regression tests plus work-order creation, scoping, filters, assignment, notes, transitions, completion, maintenance history, and terminal-state checks.
+- Python compilation for `app` and `tests`: **passed**.
 
 ## 13. Current bugs and blockers
 
-- No Phase 5 blockers remain.
+- No Phase 6 blockers remain.
 - Credentials remain local-only and are not tracked; another developer must configure their own `backend/.env`.
 - Stateless JWTs are not server-revocable before expiry; logout requires client-side token disposal.
 
 ## 14. Incomplete tasks
 
-- Implement Phase 6 work-order and maintenance APIs.
+- Implement Phase 7 dashboard and reporting APIs.
 - Preserve the existing migration history and use new reviewed migrations for future schema changes.
 
 ## 15. Decisions awaiting approval
 
-- The Phase 5 API contract is recorded in D-013 and the project specification.
-- No Phase 5 decision is awaiting approval.
+- The Phase 5 API contract is recorded in D-013 and the Phase 6 workflow contract is recorded in D-014.
+- No Phase 6 decision is awaiting approval.
 
 ## 16. Next phase
 
-Phase 6 — Work-order and maintenance APIs.
+Phase 7 — Dashboard and reporting APIs.
 
 ## 17. Exact next action
 
-Review the Phase 5 commit, then implement authenticated work-order creation, assignment, status transitions, activity history, and maintenance completion APIs with role checks and tests.
+Implement authenticated aggregate dashboard queries for open/overdue work, priority/status distributions, equipment attention indicators, and role-appropriate visibility with PostgreSQL-backed tests.
 
 ## 18. Acceptance criteria before proceeding
 
@@ -232,7 +256,9 @@ Review the Phase 5 commit, then implement authenticated work-order creation, ass
 - Asset list responses use `{items, total, skip, limit}` with a maximum limit of 100 and deterministic ordering.
 - Asset read access is authenticated for all roles; asset writes are restricted to administrators and managers.
 - Deactivation preserves asset records and is idempotent.
+- Work-order creation, assignment, reassignment, listing, filtering, notes, history, transitions, completion, and maintenance-history access are covered by PostgreSQL-backed tests.
+- Completion writes status, history, and one maintenance record transactionally; repeated completion cannot create duplicates.
 
 ## Phase 5 verification result
 
-Phase 5 is **complete** as of October 10, 2026. Equipment APIs, authorization, validation, filtering, pagination, PostgreSQL-backed rollback-isolated integration tests, compilation, dependency checks, Phase 4 regressions, and the public health endpoint all passed. No credentials or environment files are tracked, and no Phase 6 functionality was added.
+Phase 5 is **complete** as of October 10, 2026. Phase 6 is **complete** as of October 10, 2026. The complete backend suite passed with **27 tests** against PostgreSQL using rollback-only isolation. Python compilation passed; no schema migration was required; no credentials or environment files are tracked; and no frontend, dashboard, deployment, or later-phase functionality was added.

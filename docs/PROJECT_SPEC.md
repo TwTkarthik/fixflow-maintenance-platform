@@ -39,7 +39,7 @@ The MVP should:
 9. Have automated coverage for important workflows and permission boundaries.
 10. Provide reproducible setup, migration, test, and run instructions for another developer.
 
-The MVP is accepted only when the implemented workflows, tests, documentation, and local demonstration have been verified together. The current repository contains the Phase 2 skeleton, Phase 3 database foundation, Phase 4 authentication foundation, and Phase 5 equipment APIs; work-order, dashboard, and frontend authentication/equipment functionality remain to be implemented.
+The MVP is accepted only when the implemented workflows, tests, documentation, and local demonstration have been verified together. The current repository contains the Phase 2 skeleton, Phase 3 database foundation, Phase 4 authentication foundation, Phase 5 equipment APIs, and Phase 6 work-order/maintenance APIs; dashboard and frontend authentication/equipment functionality remain to be implemented.
 
 ## 3. Functional requirements
 
@@ -149,9 +149,9 @@ The initial transition policy is:
 | Completed | None in the MVP |
 | Cancelled | None in the MVP |
 
-Assignment and status rules are related but distinct: assignment should normally be present before `Assigned` or `In Progress`, and completion requires an outcome/maintenance record according to the final validation rule. These enforcement details are provisional until the API design phase confirms the exact transaction behavior.
+Assignment and status rules are related but distinct: assignment is required before `Assigned`, `In Progress`, or `Completed`; assignment moves an `Open` order to `Assigned`; reassignment preserves a nonterminal status. Completion requires an assigned technician and a nonblank summary, then atomically writes the status, completion timestamp, history event, and one maintenance record. `Assigned` to `Open` clears the current assignee. These are the Phase 6 implementation rules.
 
-Every accepted status change records the previous state, new state, actor, timestamp, and optional note in `work_order_updates`. Rejected transitions return a useful validation error and do not partially update the record.
+Every accepted status change records the previous state, new state, actor, timestamp, and optional note in `work_order_updates`. Creation and assignment/reassignment also append auditable events. Rejected transitions return a useful validation error and do not partially update the record.
 
 ## 8. Planned database model
 

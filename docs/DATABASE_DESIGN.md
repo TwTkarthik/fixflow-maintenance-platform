@@ -2,7 +2,7 @@
 
 ## Purpose and scope
 
-This document describes the Phase 3 PostgreSQL schema foundation. It covers five SQLAlchemy 2.x ORM models and the initial Alembic migration. Authentication behavior, equipment APIs, work-order APIs, and maintenance workflows are intentionally not implemented yet.
+This document describes the PostgreSQL schema foundation and the Phase 6 workflow behavior built on top of it. It covers five SQLAlchemy 2.x ORM models and the initial Alembic migration. No schema migration was required for Phase 6 because the existing tables, update types, and maintenance uniqueness constraint already support the APIs.
 
 The database is designed for the initial single-organization MVP. Integer auto-incrementing primary keys were selected for readability and straightforward relational joins. All stored timestamps use timezone-aware PostgreSQL timestamps and are generated in UTC by the database/application environment.
 
@@ -71,7 +71,7 @@ Stores repair or maintenance requests.
 - `due_at`: optional timezone-aware target timestamp.
 - `created_at`, `updated_at`, `completed_at`: lifecycle timestamps.
 
-Indexes support status/priority, assignee/status, and asset/status filtering. Status-transition logic belongs to the future work-order API phase.
+Indexes support status/priority, assignee/status, and asset/status filtering. API status-transition logic uses the approved six-state lifecycle and is implemented in `app.services.work_orders`.
 
 ### `work_order_updates`
 
@@ -85,7 +85,7 @@ Stores append-only work-order activity and status history.
 - `note`: optional repair or transition comment.
 - `created_at`: immutable timezone-aware event timestamp.
 
-The `(work_order_id, created_at)` index supports chronological history retrieval. No activity-writing API exists yet.
+The `(work_order_id, created_at)` index supports chronological history retrieval. The API appends creation, assignment, status-change, and note events and never edits or deletes them.
 
 ### `maintenance_records`
 
@@ -99,7 +99,7 @@ Stores completed service history.
 - `completed_at`: required timezone-aware service timestamp.
 - `created_at`: record creation timestamp.
 
-The unique `work_order_id` constraint represents the Phase 3 decision that one completed work order has at most one maintenance record. Completion logic will be implemented and validated in a later phase.
+The unique `work_order_id` constraint represents the decision that one completed work order has at most one maintenance record. Phase 6 creates this record transactionally when a work order is completed and exposes read-only work-order and asset history endpoints.
 
 ## Relationships and deletion behavior
 
@@ -155,4 +155,6 @@ Do not drop or recreate the database to resolve migration issues. Review autogen
 ## Known limitations
 
 - No seed users, sample assets, or sample work orders are created.
+- Work-order completion requires an assigned technician and a nonblank completion summary; `work_performed` defaults to that summary when omitted.
+- Technician queries are scoped by the current authenticated user's assignment before totals or records are returned.
 - The schema does not yet include authentication tokens, audit policy beyond work-order updates, attachments, inventory, or preventive-maintenance scheduling.
