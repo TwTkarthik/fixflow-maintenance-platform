@@ -39,7 +39,7 @@ The MVP should:
 9. Have automated coverage for important workflows and permission boundaries.
 10. Provide reproducible setup, migration, test, and run instructions for another developer.
 
-The MVP is accepted only when the implemented workflows, tests, documentation, and local demonstration have been verified together. The current repository does not yet satisfy application-level criteria because implementation has not started.
+The MVP is accepted only when the implemented workflows, tests, documentation, and local demonstration have been verified together. The current repository contains only the Phase 2 skeleton and Phase 3 database foundation; business application implementation has not started.
 
 ## 3. Functional requirements
 
@@ -152,13 +152,13 @@ Every accepted status change records the previous state, new state, actor, times
 
 ## 8. Planned database model
 
-The following is the planned relational model. Exact SQL types, indexes, naming conventions, and migration details are provisional until the database phase.
+The following is the planned relational model. Phase 3 resolves the initial implementation details in `docs/DATABASE_DESIGN.md`; future schema changes still require migrations and a reviewed decision.
 
 ### `users`
 
 | Field | Planned type/constraint | Description |
 |---|---|---|
-| `id` | UUID or integer primary key | Stable user identity; exact key type is provisional |
+| `id` | integer auto-incrementing primary key | Stable user identity |
 | `full_name` | required bounded string | Display name |
 | `email` | required, unique, indexed | Login identity |
 | `password_hash` | required string | Secure password hash; never a plaintext password |
@@ -172,6 +172,7 @@ The following is the planned relational model. Exact SQL types, indexes, naming 
 | Field | Planned type/constraint | Description |
 |---|---|---|
 | `id` | primary key | Equipment identity |
+| `asset_code` | required, unique business identifier | Human-readable equipment identity |
 | `name` | required bounded string | Human-readable equipment name |
 | `category` | required bounded string | Equipment category |
 | `serial_number` | optional string, indexed where useful | Manufacturer serial number |
@@ -218,7 +219,7 @@ The following is the planned relational model. Exact SQL types, indexes, naming 
 | Field | Planned type/constraint | Description |
 |---|---|---|
 | `id` | primary key | Maintenance record identity |
-| `work_order_id` | required, unique or explicitly constrained | Source completed work order |
+| `work_order_id` | required unique foreign key | One maintenance record per completed work order in the initial schema |
 | `asset_id` | required foreign key to `assets.id` | Equipment serviced |
 | `performed_by_id` | required foreign key to `users.id` | Technician or responsible user |
 | `outcome` | required text | Result of repair |
@@ -230,7 +231,7 @@ The following is the planned relational model. Exact SQL types, indexes, naming 
 
 - One user can create many assets and work orders, author many updates, and perform many maintenance records.
 - One asset can have many work orders and maintenance records.
-- One work order belongs to one asset, has one creator, has zero or one current assignee, and has many updates.
+- One work order belongs to one asset, has one creator, has zero or one current assignee, has many updates, and has at most one maintenance record.
 - A completed work order must have a documented outcome and a maintenance record under the final implementation rule.
 - Foreign keys must prevent orphaned records.
 - Deactivation is preferred to deletion for assets with history.
@@ -344,24 +345,22 @@ The architecture remains a modular monolith. Additional frameworks or services r
 - Local-first implementation order.
 - Database migrations and automated testing before deployment.
 - Phase order in `docs/DEVELOPMENT_ROADMAP.md`.
+- Integer primary keys, timezone-aware timestamps, database-enforced value constraints, and one maintenance record per work order for the initial schema.
 
 ### Assumptions requiring verification during implementation
 
-- UUID versus integer primary keys.
 - Exact JWT storage, refresh, revocation, and logout strategy.
 - Exact API path and response envelope conventions.
-- Exact database enum implementation and migration naming conventions.
 - Whether `due_at` is required for all work orders or optional.
 - Final technician visibility for equipment, dashboard, and unassigned work.
-- Whether each completed work order must have exactly one maintenance record or may have multiple records.
 - Final UI styling system and responsive breakpoints.
-- Local PostgreSQL provisioning method before environment setup begins.
+- Local PostgreSQL credential provisioning and database lifecycle for development.
 
 Open assumptions must be resolved in the relevant implementation phase and recorded in `docs/DECISIONS.md` when they become project decisions.
 
 ## 16. Known limitations
 
-- No application code, database, deployment, or automated tests exist yet.
+- No business API, authentication, or live database integration exists yet; the Phase 3 ORM models, migration code, and metadata tests are implemented.
 - The MVP is not multi-tenant.
 - Notifications, file attachments, inventory/parts, preventive-maintenance scheduling, mobile apps, machine learning, advanced analytics, microservices, Kubernetes, and production AWS operations are excluded unless later approved.
 - The current specification describes planned behavior; implementation and verification remain outstanding.

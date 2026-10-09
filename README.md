@@ -4,9 +4,9 @@ FixFlow is a maintenance and repair management platform for small and medium-siz
 
 ## Current status
 
-Phase 2 is complete: the repository contains a minimal FastAPI backend and React/Vite frontend skeleton. The frontend calls the real backend health endpoint and displays connected and disconnected states.
+Phases 1–3 are complete and verified: the repository contains a minimal FastAPI backend, React/Vite frontend skeleton, SQLAlchemy models, and an initial Alembic migration applied to the local PostgreSQL development database.
 
-Business features such as authentication, database models, equipment, work orders, maintenance records, and dashboards have not been implemented yet.
+Business features such as authentication, equipment APIs, work-order APIs, maintenance workflows, and dashboards have not been implemented yet.
 
 ## Planned features
 
@@ -22,7 +22,7 @@ Business features such as authentication, database models, equipment, work order
 
 - Frontend: React, Vite, JavaScript, HTML, and CSS.
 - Backend: Python 3.12, FastAPI, Pydantic, and Uvicorn.
-- Planned database: PostgreSQL with SQLAlchemy 2.x and Alembic; not connected yet.
+- Database: PostgreSQL 18 with SQLAlchemy 2.x and Alembic; the Phase 3 schema is migrated to revision `e98ccb2cbf89` locally.
 - Testing: Pytest and FastAPI TestClient.
 - Delivery: Git-based checkpoints and local-first verification.
 
@@ -37,7 +37,8 @@ FixFlow/
 │   ├── PROJECT_SPEC.md
 │   ├── PROJECT_STATUS.md
 │   ├── DEVELOPMENT_ROADMAP.md
-│   └── DECISIONS.md
+│   ├── DECISIONS.md
+│   └── DATABASE_DESIGN.md
 ├── backend/
 │   ├── app/
 │   │   ├── __init__.py
@@ -59,7 +60,7 @@ FixFlow/
 
 ## Local development
 
-The backend and frontend run in separate PowerShell windows. PostgreSQL is not required until Phase 3.
+The backend and frontend run in separate PowerShell windows. PostgreSQL is required for the Phase 3 database layer, but the Phase 2 health endpoint remains independent of it.
 
 ### Backend
 
@@ -81,6 +82,21 @@ Backend URLs:
 
 If PowerShell blocks script activation, use the virtual-environment interpreter directly, for example `./.venv/Scripts/python.exe -m pytest -q` from `backend`. In the original Phase 2 workspace, Python's bundled `ensurepip` required a local pip bootstrap before the normal activation commands worked; this was an environment-specific issue, not an application requirement.
 
+### Database configuration and migrations
+
+From `backend`, configure a local PostgreSQL connection without committing credentials:
+
+```powershell
+Copy-Item .env.example .env
+# Edit .env and set DATABASE_URL to a real local PostgreSQL URL.
+python -m pip install -r requirements.txt
+python -m alembic upgrade head
+python -m alembic current
+python -m alembic check
+```
+
+The expected URL shape is `postgresql+psycopg://USER:PASSWORD@127.0.0.1:5432/fixflow_dev`. The local database is currently migrated to revision `e98ccb2cbf89`. See [database design](docs/DATABASE_DESIGN.md) for the schema and safe migration workflow.
+
 ### Frontend
 
 In a second PowerShell window, from the repository root:
@@ -101,6 +117,7 @@ When running in the foreground, press `Ctrl+C` in each server's PowerShell windo
 
 - [Project specification](docs/PROJECT_SPEC.md) — scope, requirements, data model, workflows, and acceptance criteria.
 - [Project status](docs/PROJECT_STATUS.md) — verified current state, environment, commands, tests, blockers, and next action.
+- [Database design](docs/DATABASE_DESIGN.md) — schema, relationships, constraints, configuration, and migration workflow.
 - [Development roadmap](docs/DEVELOPMENT_ROADMAP.md) — ordered implementation lifecycle.
 - [Decision log](docs/DECISIONS.md) — approved technical choices and provisional decisions.
 - [Agent instructions](AGENTS.md) — persistent rules for future development work.

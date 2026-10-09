@@ -2,7 +2,7 @@
 
 This roadmap is the intended lifecycle. Work proceeds in order, and the status document records what is actually underway. A later phase must not be treated as complete because its files or plans exist.
 
-**Current roadmap state:** Phases 1 and 2 are complete and verified. Phase 3 is next; all later phases remain not started.
+**Current roadmap state:** Phases 1–3 are complete and verified. The local PostgreSQL schema is at Alembic revision `e98ccb2cbf89`. Phase 4 is next; all later phases remain not started.
 
 ## Phase 1 — Project foundation and master documentation
 
@@ -33,6 +33,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 **Completion criteria:** Both processes run using documented commands; health check responds; frontend loads; no feature claims beyond the skeleton; status and tests reflect actual results.
 
 ## Phase 3 — Database models and migrations
+
+**Status:** Complete and verified on October 10, 2026. The initial migration is applied to `fixflow_dev`, Alembic reports revision `e98ccb2cbf89` as head, and no schema drift is detected.
 
 **Objective:** Implement the relational foundation for users, assets, work orders, updates, and maintenance records.
 

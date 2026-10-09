@@ -2,149 +2,166 @@
 
 ## 1. Project status and last-updated date
 
-**Status:** Phase 2 foundation and application skeleton completed and verified. Business features have not been implemented.
-**Last updated:** October 9, 2026
+**Status:** Phase 3 database foundation complete and live-verified; Phase 4 authentication and authorization is next.
+**Last updated:** October 10, 2026
 
 ## 2. Current phase
 
-Phase 3 — Database models and migrations is next. Phase 2 is complete for the minimal local skeleton and is awaiting review before database work begins.
+Phase 4 — Authentication and authorization is next. Phase 3 is complete, including live PostgreSQL migration and schema verification.
 
 ## 3. Overall completion state
 
 Project foundation and runnable skeleton: complete.
-Business application functionality: not implemented.
-Database models, migrations, authentication, equipment, work orders, dashboards, Docker, and AWS deployment: not started.
+Database model and migration source: implemented and verified.
+Live database schema: migrated and verified at Alembic revision `e98ccb2cbf89`.
+Authentication, equipment, work orders, maintenance APIs, dashboards, Docker, and AWS deployment: not started.
 
 ## 4. Completed phases
 
-- **Phase 1 — Project foundation and master documentation:** Documentation, ignore rules, minimal structure, and local Git repository created and verified.
-- **Phase 2 — Environment setup and application skeleton:** Python 3.12 FastAPI health API, project-local backend environment, React/Vite frontend, local configuration examples, backend health test, and run documentation created and verified.
+- **Phase 1 — Project foundation and master documentation:** Complete and verified.
+- **Phase 2 — Environment setup and application skeleton:** Complete and verified.
 
-## 5. Features actually implemented
+## 5. Phase 3 work completed
 
-- FastAPI `GET /api/health` returning `{"status":"ok","service":"fixflow-api"}`.
-- FastAPI CORS configuration for the two expected local Vite origins.
-- React/Vite landing screen that requests the real backend health endpoint on load.
-- Frontend loading, connected, and disconnected/error states.
-- Frontend display of the actual successful backend JSON response.
-- One automated backend health test using Pytest and FastAPI TestClient.
+- Centralized environment-based `DATABASE_URL` configuration.
+- SQLAlchemy 2.x declarative base, naming conventions, lazy engine creation, session factory, and cleanup dependency.
+- Five ORM models: `User`, `Asset`, `WorkOrder`, `WorkOrderUpdate`, and `MaintenanceRecord`.
+- Asset schema includes the approved unique business code, equipment identity fields, optional serial/manufacturer/model details, active/deactivated status, and audit timestamps.
+- Maintenance records include the approved outcome, work performed, completion timestamp, and responsible user/asset/work-order references.
+- Relationships, explicit foreign keys, non-null fields, unique constraints, check constraints, indexes, server defaults, and timezone-aware timestamps.
+- Alembic environment connected to shared model metadata and runtime `DATABASE_URL` configuration.
+- Initial migration `e98ccb2cbf89_initial_database_schema.py`, with upgrade and downgrade operations for all five tables.
+- Metadata verification tests and database design documentation.
+- Live PostgreSQL migration applied successfully; `alembic current` reports `e98ccb2cbf89 (head)`, and `alembic check` reports no new upgrade operations.
+- Read-only database inspection confirmed `users`, `assets`, `work_orders`, `work_order_updates`, and `maintenance_records`, plus the matching `alembic_version` row.
 
-No equipment management, work orders, authentication, database models, migrations, dashboards, or other later-phase business features are implemented.
+No authentication endpoints, CRUD APIs, status-transition services, dashboard metrics, seed users, or live data were added.
 
 ## 6. Files created or modified
 
 Created:
 
-- `backend/app/__init__.py`
-- `backend/app/main.py`
-- `backend/tests/test_health.py`
-- `backend/requirements.txt`
-- `backend/.env.example`
-- `frontend/package.json`
-- `frontend/package-lock.json`
-- `frontend/vite.config.js`
-- `frontend/index.html`
-- `frontend/src/main.jsx`
-- `frontend/src/App.jsx`
-- `frontend/src/styles.css`
-- `frontend/.env.example`
+- `backend/app/core/__init__.py`
+- `backend/app/core/config.py`
+- `backend/app/db/__init__.py`
+- `backend/app/db/base.py`
+- `backend/app/db/session.py`
+- `backend/app/models/__init__.py`
+- `backend/app/models/enums.py`
+- `backend/app/models/user.py`
+- `backend/app/models/asset.py`
+- `backend/app/models/work_order.py`
+- `backend/app/models/work_order_update.py`
+- `backend/app/models/maintenance_record.py`
+- `backend/alembic.ini`
+- `backend/alembic/env.py`
+- `backend/alembic/README`
+- `backend/alembic/script.py.mako`
+- `backend/alembic/versions/e98ccb2cbf89_initial_database_schema.py`
+- `backend/tests/test_database_metadata.py`
+- `docs/DATABASE_DESIGN.md`
 
 Modified:
 
+- `backend/requirements.txt`
+- `backend/.env.example`
 - `README.md`
-- `docs/PROJECT_STATUS.md`
+- `docs/PROJECT_SPEC.md`
+- `docs/DECISIONS.md`
 - `docs/DEVELOPMENT_ROADMAP.md`
+- `docs/PROJECT_STATUS.md`
 
-Removed because the directories now contain real files:
+No frontend files were changed in Phase 3. Local `.env`, `.venv`, caches, build output, and logs remain ignored and untracked.
 
-- `backend/.gitkeep`
-- `frontend/.gitkeep`
-
-Ignored local artifacts created during verification include `backend/.venv/`, `frontend/node_modules/`, frontend build output, and local server logs. They are not tracked.
-
-## 7. Environment versions detected
+## 7. Environment and database versions verified
 
 - Git `2.46.0.windows.1`
 - Python `3.12.10`
+- PostgreSQL client/server installation `18.4`
 - Node.js `v22.12.0`
 - npm `11.2.0`
-- PostgreSQL client `18.4` detected but not used in Phase 2
-- Docker `29.6.2` detected but not used in Phase 2
+- PostgreSQL service `postgresql-x64-18`: running
+- PostgreSQL listener: `127.0.0.1:5432`, accepting connections
+- Docker Desktop: unavailable/not running; not needed for Phase 3
 
-## 8. Dependencies installed
+## 8. Dependencies added
 
-Backend requirements, installed into `backend/.venv`:
+Added to `backend/requirements.txt` and installed into `backend/.venv`:
 
-- FastAPI `0.115.12`
-- Uvicorn `0.34.2`
-- httpx `0.28.1`
-- Pytest `8.4.2`
+- SQLAlchemy `2.0.41`
+- Alembic `1.16.4`
+- psycopg `3.2.9` with the binary extra
+- python-dotenv `1.2.4`
 
-The environment also contains the required transitive packages. Frontend dependencies were installed from `frontend/package.json`; npm reported zero vulnerabilities for the installed dependency tree.
+Existing Phase 2 dependencies were preserved. `pip check` reported no broken requirements.
 
 ## 9. Commands actually executed
 
-- Workspace/documentation inspection with `Get-Content`, `Get-ChildItem`, `rg --files -uu`, and Git status checks.
-- Runtime checks: `git --version`, `python --version`, `node --version`, `npm --version`, `psql --version`, and `docker --version`.
-- `python -m venv backend\.venv` (the bundled `ensurepip` step failed in this Windows environment; the environment directory was created without pip).
-- `python -m pip --python backend\.venv\Scripts\python.exe install ...` to install the declared requirements and bootstrap pip into the project-local environment.
-- `npm install` in `frontend`.
-- `backend\.venv\Scripts\python.exe -m pytest -q` with local loopback access.
-- `npm run build` in `frontend`.
-- FastAPI server start on `127.0.0.1:8000` and Vite server start on `127.0.0.1:5173`.
-- HTTP verification of `/api/health` and `/docs` with PowerShell `Invoke-WebRequest`.
-- Browser verification of the connected frontend, actual API response, and disconnected state after stopping the backend.
-- Backend restart and browser re-verification of the connected state.
-- Git diff/status review and local Phase 2 checkpoint preparation.
+- Read all project instructions, specification, status, roadmap, decisions, README, and existing source/manifests.
+- Inspected Git state and existing files; repository started this phase clean at `d626d8f`.
+- Verified `psql`, `pg_isready`, PostgreSQL installation, service registration, listener configuration, and `pg_hba.conf`.
+- `pg_isready -h 127.0.0.1 -p 5432` — accepting connections when run with local loopback access.
+- `psql -h 127.0.0.1 -U postgres -d postgres -w -c "SELECT version();"` — failed safely with `fe_sendauth: no password supplied`.
+- Installed SQLAlchemy, Alembic, and psycopg from the updated requirements file.
+- Initialized Alembic with `python -m alembic init alembic`.
+- Created the initial revision with `python -m alembic revision -m "initial database schema"` and populated its reviewed operations.
+- Rendered `python -m alembic upgrade head --sql` using the PostgreSQL dialect — passed.
+- Applied the initial migration to the configured local `fixflow_dev` database — passed, as verified by the final review.
+- Ran `python -m alembic current` — reported `e98ccb2cbf89 (head)`.
+- Ran `python -m alembic check` — reported no new upgrade operations.
+- Performed read-only inspection of the five application tables and `alembic_version` — passed.
+- Ran metadata tests, full backend tests, Python compilation, and `pip check`.
+- Reviewed the complete diff and ignored-file state.
 
 ## 10. Tests and verification results
 
-- Backend health test: **passed, 1 passed in 0.45s**.
-- Frontend production build: **passed** with Vite `6.4.4`.
-- Backend runtime: **passed**, `GET /api/health` returned HTTP 200 and the expected JSON.
-- Interactive API documentation: **passed**, `/docs` returned HTTP 200 and contained Swagger UI.
-- Frontend connected state: **passed**, browser showed “API connected” and the actual backend JSON.
-- Frontend failure state: **passed**, browser showed “API disconnected” with a usable recovery message when the backend was stopped.
-- Frontend recovery: **passed**, browser showed the connected state again after the backend restarted.
-- Browser console logs were not separately queried because the available browser surface exposed DOM/screenshot verification but not a console-log API; server logs showed normal startup with no application errors.
+- Database metadata tests: **passed as part of the full suite**.
+- Full backend suite, including the Phase 2 health test: **passed, 5 passed in 0.77s**.
+- Python `compileall`: **passed**.
+- `pip check`: **passed**, no broken requirements.
+- PostgreSQL offline migration SQL rendering: **passed** after the schema alignment update; all five tables, approved asset fields, maintenance outcome/completion fields, constraints, foreign keys, indexes, and migration bookkeeping SQL rendered for PostgreSQL.
+- Existing frontend production build: **passed** with Vite `6.4.4`; no frontend files were changed.
+- PostgreSQL live readiness: **passed**; service is running and port 5432 accepts connections.
+- PostgreSQL authentication and live migration: **passed**; the initial migration is applied to the configured local development database.
+- `alembic current`: **passed**, reporting `e98ccb2cbf89 (head)`.
+- `alembic check`: **passed**, reporting no new upgrade operations.
+- Read-only table and migration-version inspection: **passed**; all five expected tables exist and `alembic_version` contains `e98ccb2cbf89`.
 
 ## 11. Current bugs and blockers
 
-- No known Phase 2 application bugs or critical blockers.
-- This Windows sandbox blocks local socketpair/loopback behavior for some normal-sandbox test commands; the same TestClient test passed using the permitted local verification execution path.
-- The standard `python -m venv` command encountered an environment-specific `ensurepip` failure, so this workspace required pip bootstrapping through the global Python pip manager. The resulting project-local environment is working.
+- No Phase 3 blockers remain.
+- Credentials remain local-only and are not tracked; another developer must configure their own `backend/.env`.
 
 ## 12. Incomplete tasks
 
-- PostgreSQL has not been connected or configured; database work belongs to Phase 3.
-- Authentication, authorization, equipment, work orders, maintenance records, dashboards, and all other MVP business features remain unimplemented.
-- Docker and AWS deployment remain intentionally out of scope for this phase.
+- Implement Phase 4 authentication and authorization after review.
+- Preserve the existing migration history and use new reviewed migrations for future schema changes.
 
 ## 13. Decisions awaiting approval
 
-- No new product or architecture decision was required in Phase 2.
-- The provisional schema and authentication decisions in `docs/PROJECT_SPEC.md` and D-010 remain open for their implementation phases.
+- No new product decision is required immediately.
+- The Phase 3 design choices are recorded in D-011 and `docs/DATABASE_DESIGN.md`.
+- No Phase 3 decision is awaiting approval.
 
 ## 14. Next phase
 
-Phase 3 — Database models and migrations.
+Phase 4 — Authentication and authorization.
 
 ## 15. Exact next action
 
-Confirm the remaining database assumptions, verify local PostgreSQL provisioning, then implement SQLAlchemy models and the initial Alembic migration from an empty database. Do not begin authentication or business APIs until the schema foundation is verified.
+Review the Phase 3 commit, then begin Phase 4 authentication and authorization. Do not add business APIs before the authentication foundation is designed.
 
 ## 16. Acceptance criteria before proceeding
 
-- Phase 2 environment versions and dependencies are documented.
-- Backend starts locally and `/api/health` returns the expected JSON.
-- The automated health test passes.
-- Frontend builds and starts locally.
-- Frontend displays the real connected response and a usable backend-unavailable state.
-- Run instructions match the files and scripts in the repository.
-- No secrets, virtual environments, `node_modules`, build output, or logs are tracked.
-- Only Phase 2 scope was implemented.
-- Git and project documentation accurately reflect the completed work and next phase.
+- All five ORM models are registered and metadata tests pass.
+- Alembic imports the shared metadata and the initial migration renders valid PostgreSQL SQL.
+- PostgreSQL `fixflow_dev` is authenticated without guessed credentials.
+- The initial migration applies successfully to the intended database.
+- `alembic current` reports the initial revision and `alembic check` reports no unexplained drift.
+- Live tables, constraints, indexes, foreign keys, and timestamp defaults are inspected.
+- Phase 2 health behavior remains passing.
+- No secrets, database dumps, destructive resets, or future-phase APIs are added.
 
-## Phase 2 verification result
+## Phase 3 verification result
 
-All Phase 2 completion criteria passed on October 9, 2026. A local Git checkpoint was prepared with a clean working tree. Work stops here for user review; Phase 3 is not being started automatically.
+Phase 3 is **complete** as of October 10, 2026. Source-level checks, live migration verification, Alembic head/check verification, read-only table inspection, and the Phase 2 health test all passed. No credentials, environment files, destructive resets, unrelated database changes, or Phase 4 functionality were added.

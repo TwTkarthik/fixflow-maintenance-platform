@@ -71,3 +71,10 @@ This log records decisions that constrain implementation. “Final” means appr
 - **Reason:** These details need concrete API/database context; recording them as assumptions prevents accidental invention while preserving forward progress.
 - **Trade-offs:** Later phases must resolve and record these decisions before dependent features are considered complete.
 - **Status:** Provisional; resolution is required in Phases 3–6 as applicable.
+
+## D-011 — Phase 3 relational design details
+
+- **Decision:** Use integer auto-incrementing primary keys, PostgreSQL timezone-aware timestamps, non-native SQLAlchemy enums backed by database check constraints, restrictive deletion for historical parents, an asset business code plus optional serial/manufacturer/model fields, and one maintenance record per work order through a unique `maintenance_records.work_order_id`.
+- **Reason:** These choices are readable for an MVP learner, preserve history, work cleanly with PostgreSQL, and avoid premature native enum lifecycle complexity while keeping allowed values database-enforced.
+- **Trade-offs:** Integer identifiers are less globally unique than UUIDs; check constraints require explicit migration updates when vocabularies change; one maintenance record per work order may need revision if repeat service events are later required.
+- **Status:** Final for the initial schema, subject to future reviewed requirements changes.
