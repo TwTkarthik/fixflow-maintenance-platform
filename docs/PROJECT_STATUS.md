@@ -2,12 +2,12 @@
 
 ## 1. Project status and last-updated date
 
-**Status:** Phase 10 testing, debugging, and security review is complete and verified. Authenticated browser workflows from Phase 9 remain an explicitly recorded limitation; Phase 11 has not started.
+**Status:** Phase 11 Docker packaging is in progress. Compose configuration and deployment documentation are complete and statically validated; runtime container verification is blocked because Docker Desktop's Linux engine is unavailable. Authenticated browser workflows from Phase 9 remain an explicitly recorded limitation; Phase 12 has not started.
 **Last updated:** October 10, 2026
 
 ## 2. Current phase
 
-Phase 10 — Testing, debugging, and security review is complete. Phase 9 authenticated browser verification remains outstanding; no Phase 11 work has started.
+Phase 11 — Docker packaging and optional AWS deployment is in progress. Phase 10 is complete; Phase 9 authenticated browser verification remains outstanding; no Phase 12 work has started.
 
 ## 3. Overall completion state
 
@@ -17,7 +17,7 @@ Live database schema: migrated and verified at Alembic revision `e98ccb2cbf89`.
 Authentication and authorization: complete.
 Equipment management: complete.
 Work orders, maintenance, dashboards, and reporting APIs: complete.
-Frontend authentication, application shell, dashboard, equipment, work-order, history, maintenance, and reports UI: implemented and connected to the documented API contracts. Docker and AWS deployment: not started.
+Frontend authentication, application shell, dashboard, equipment, work-order, history, maintenance, and reports UI: implemented and connected to the documented API contracts. Docker packaging: in progress; AWS deployment: not attempted.
 
 ## 4. Completed phases
 
@@ -92,7 +92,17 @@ Phase 7 did not add frontend dashboard pages, notifications, deployment packagin
 - Added direct frontend API-client coverage for bearer headers, JSON request bodies, protected 401 session clearing, login-error preservation, network failures, and query serialization.
 - Verified the initial Alembic migration from empty tables in a disposable PostgreSQL schema; the schema was cleaned up and the existing application schema was not changed.
 - Reviewed CORS, JWT claims/algorithm/expiry configuration, generic authentication errors, session cleanup, secrets handling, and dependency state. The npm audit initially found three vulnerabilities in the Vitest test toolchain; upgrading Vitest to `5.0.3` resolved them.
-- No database migration was needed. No Phase 11 packaging or deployment work was started.
+- No database migration was needed; Phase 11 packaging was not part of the Phase 10 change set.
+
+## 7D. Phase 11 packaging work completed
+
+- Added a root `.env.example` with non-secret Compose placeholders and documented secret handling.
+- Added `docker-compose.yml` with PostgreSQL, a one-shot Alembic migration service, FastAPI, and Nginx-served frontend services.
+- Added backend and frontend Dockerfiles, build-context exclusions, container health checks, SPA fallback routing, and a named PostgreSQL persistence volume.
+- Kept the database password out of `DATABASE_URL` in Compose and passed it through `PGPASSWORD`, so URL-reserved password characters remain supported.
+- Added `docs/DEPLOYMENT.md` covering local Compose operation, migration ordering, persistent storage, health checks, production handling, and an optional AWS ECS/RDS architecture note.
+- `docker compose --env-file .env.example config` passed. A real image build and runtime smoke test were not possible because Docker Desktop's Linux engine is not running; no AWS deployment was attempted or claimed.
+- No database migration was needed, and no Phase 12 work was started.
 
 ## 8. Phase 4 work completed
 
@@ -247,6 +257,10 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - `.\\venv\\Scripts\\python.exe -m compileall -q app tests` — passed.
 - `.\\venv\\Scripts\\python.exe -m pip check` — passed, no broken requirements.
 - `.\\venv\\Scripts\\alembic.exe check` — passed, no new upgrade operations detected.
+- `docker compose --env-file .env.example config` — passed; all four services, environment interpolation, dependencies, health checks, and the named PostgreSQL volume rendered successfully.
+- Compose-style password handling check — passed; a password-free SQLAlchemy URL connected successfully using `PGPASSWORD`.
+- `docker version; docker compose version` — Docker CLI `29.6.2` and Compose `v5.3.1` are installed, but the Docker Desktop Linux daemon is unavailable.
+- `docker compose --env-file .env.example build` — not completed; Docker Desktop's Linux engine was unavailable (`dockerDesktopLinuxEngine` named pipe not found).
 - Disposable PostgreSQL-schema migration smoke check — passed; `alembic upgrade head` created the complete initial schema in an empty schema, which was then cleaned up.
 - `npm audit --audit-level=high` — initially reported 3 test-toolchain vulnerabilities; after upgrading Vitest to `5.0.3`, it reported **0 vulnerabilities**.
 - `pip-audit` — unavailable because the utility is not installed; backend dependency consistency was verified with `pip check`.
@@ -291,6 +305,7 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - Initial migration from empty disposable schema: **passed**; all migration-created objects were removed from the temporary schema after verification.
 - npm dependency advisory scan: **passed**, 0 vulnerabilities after the Vitest upgrade.
 - Backend dependency advisory scan: `pip-audit` was not available; `pip check` passed with no broken requirements.
+- Docker runtime verification: **not completed** because the local Docker daemon is unavailable; static Compose validation passed.
 
 ## 15. Current bugs and blockers
 
@@ -299,10 +314,12 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - Full authenticated browser smoke verification with provisioned administrator, manager, and technician accounts remains outstanding.
 - Credentials remain local-only and are not tracked; another developer must configure their own `backend/.env`.
 - Stateless JWTs are not server-revocable before expiry; logout requires client-side token disposal.
+- Docker Desktop's Linux engine is not running, so image builds and container smoke verification remain outstanding.
 
 ## 16. Incomplete tasks
 
 - Complete Phase 9 authenticated local browser smoke verification using disposable administrator, manager, and technician accounts, then clean up all created records.
+- Start Docker Desktop's Linux engine and run the documented Compose build and health/migration smoke verification.
 - Preserve the existing migration history and use new reviewed migrations for future schema changes.
 
 ## 17. Decisions awaiting approval
@@ -312,11 +329,11 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 
 ## 18. Next phase
 
-Phase 10 — Testing, debugging, and security review is complete. Phase 11 remains not started until the authenticated browser limitation is closed or explicitly accepted.
+Phase 11 — Docker packaging is in progress pending runtime verification. Phase 12 remains not started.
 
 ## 19. Exact next action
 
-Run a clean authenticated local browser smoke test from login through equipment, work-order completion, maintenance history, and dashboard/report review when safe disposable credentials are available; then decide whether to proceed to Phase 11 packaging.
+Start Docker Desktop's Linux engine, run `docker compose --env-file .env up --build`, verify migration/API/frontend health, and then decide whether to proceed to Phase 12 release preparation.
 
 ## 20. Acceptance criteria before proceeding
 
@@ -343,4 +360,4 @@ Run a clean authenticated local browser smoke test from login through equipment,
 
 ## Phase verification summary
 
-Phase 5 is **complete** as of October 10, 2026. Phase 6 is **complete** as of October 10, 2026. Phase 7 is **complete** as of October 10, 2026. Phase 8 is **complete** as of October 10, 2026. Phase 9 automated verification is complete but authenticated browser workflows remain outstanding due the documented credential/browser-control limitation. Phase 10 is **complete** as of October 10, 2026: the frontend suite passed with **12 tests**, the backend suite passed with **33 tests**, the disposable-schema migration passed, and the npm audit reported **0 vulnerabilities** after the Vitest upgrade. No schema migration was added; no credentials or environment files are tracked; and Docker/AWS work was not started.
+Phase 5 is **complete** as of October 10, 2026. Phase 6 is **complete** as of October 10, 2026. Phase 7 is **complete** as of October 10, 2026. Phase 8 is **complete** as of October 10, 2026. Phase 9 automated verification is complete but authenticated browser workflows remain outstanding due the documented credential/browser-control limitation. Phase 10 is **complete** as of October 10, 2026: the frontend suite passed with **12 tests**, the backend suite passed with **33 tests**, the disposable-schema migration passed, and the npm audit reported **0 vulnerabilities** after the Vitest upgrade. Phase 11 is **in progress**: Compose configuration and deployment documentation passed static review, but runtime container verification is blocked by the unavailable Docker Desktop Linux engine. No schema migration was added; no credentials or environment files are tracked; AWS deployment was not attempted; and Phase 12 was not started.

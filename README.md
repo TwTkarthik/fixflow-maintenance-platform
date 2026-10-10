@@ -6,7 +6,7 @@ FixFlow is a maintenance and repair management platform for small and medium-siz
 
 Phases 1–8 are complete and verified, and the Phase 10 testing/debugging/security review is complete: the repository contains a FastAPI backend, a React/Vite frontend connected to the documented APIs, SQLAlchemy models, an applied Alembic migration, JWT authentication, backend role dependencies, authenticated equipment APIs, PostgreSQL-backed work-order/maintenance workflows, dashboard/reporting APIs, and focused frontend/backend regression coverage.
 
-Authenticated browser smoke verification remains outstanding because safe disposable credentials and an allowed automated password-entry path were unavailable. Docker packaging and AWS deployment remain future work. Administrator user-management UI is deferred until a backend user-management API exists.
+Authenticated browser smoke verification remains outstanding because safe disposable credentials and an allowed automated password-entry path were unavailable. Phase 11 adds a documented Docker Compose workflow; AWS deployment remains optional future work. Administrator user-management UI is deferred until a backend user-management API exists.
 
 ## Planned features
 
@@ -169,6 +169,19 @@ Open `http://127.0.0.1:5173` or `http://localhost:5173`. The frontend reads `VIT
 
 When running in the foreground, press `Ctrl+C` in each server's PowerShell window. The frontend's Vite process and backend's Uvicorn process can then be restarted with the commands above.
 
+### Docker Compose
+
+Phase 11 provides a local container workflow for the frontend, backend, migration job, and persistent PostgreSQL volume. Docker Desktop's Linux engine must be running.
+
+```powershell
+Copy-Item .env.example .env
+# Edit .env and replace the local password and JWT secret placeholders.
+docker compose --env-file .env config
+docker compose --env-file .env up --build
+```
+
+The Compose stack publishes the frontend at `http://localhost:5173`, the backend at `http://localhost:8000`, and runs `alembic upgrade head` before starting the API. See [the deployment guide](docs/DEPLOYMENT.md) for persistence, health checks, shutdown, production handling, and the optional AWS architecture note. A successful `docker compose config` is only a configuration check; do not claim a container build or deployment without a running Docker daemon.
+
 ## Documentation
 
 - [Project specification](docs/PROJECT_SPEC.md) — scope, requirements, data model, workflows, and acceptance criteria.
@@ -176,6 +189,7 @@ When running in the foreground, press `Ctrl+C` in each server's PowerShell windo
 - [Database design](docs/DATABASE_DESIGN.md) — schema, relationships, constraints, configuration, and migration workflow.
 - [Development roadmap](docs/DEVELOPMENT_ROADMAP.md) — ordered implementation lifecycle.
 - [Decision log](docs/DECISIONS.md) — approved technical choices and provisional decisions.
+- [Deployment guide](docs/DEPLOYMENT.md) — Docker Compose workflow, persistence, health checks, and optional AWS architecture.
 - [Agent instructions](AGENTS.md) — persistent rules for future development work.
 
 ## Scope note

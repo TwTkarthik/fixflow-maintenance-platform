@@ -2,7 +2,7 @@
 
 This roadmap is the intended lifecycle. Work proceeds in order, and the status document records what is actually underway. A later phase must not be treated as complete because its files or plans exist.
 
-**Current roadmap state:** Phases 1–8 are complete and verified. Phase 9 authenticated browser workflows remain an explicitly recorded limitation. Phase 10 testing, debugging, and security review is complete and verified; Phase 11 and all later phases remain not started. The local PostgreSQL schema remains at Alembic revision `e98ccb2cbf89`; no Phase 6–10 schema migration was needed.
+**Current roadmap state:** Phases 1–8 are complete and verified. Phase 9 authenticated browser workflows remain an explicitly recorded limitation. Phase 10 testing, debugging, and security review is complete and verified. Phase 11 packaging is in progress: Compose configuration is validated, but runtime image/build verification is blocked by the unavailable Docker Desktop Linux engine. Phase 12 and all later phases remain not started. The local PostgreSQL schema remains at Alembic revision `e98ccb2cbf89`; no Phase 6–11 schema migration was needed.
 
 ## Phase 1 — Project foundation and master documentation
 
@@ -152,6 +152,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 
 ## Phase 11 — Docker packaging and optional AWS deployment
 
+**Status:** In progress as of October 10, 2026. The local Compose workflow, migrations-before-backend ordering, persistence volume, health checks, environment handling, and optional AWS architecture note are implemented and statically validated. A real image build and container smoke run remain outstanding because Docker Desktop's Linux engine is not running.
+
 **Objective:** Package the verified local app and optionally prepare a deployment path.
 
 **Planned tasks:** Add Dockerfiles/compose only after local verification; document environment variables, persistent database handling, health checks, and optional AWS architecture/deployment steps.
@@ -161,6 +163,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 **Deliverables:** Reproducible container workflow and, only if separately approved, deployment artifacts.
 
 **Completion criteria:** Containerized local run is verified; deployment is never claimed without a real verification; production secrets and data handling are documented.
+
+**Phase 11 outcome so far:** Added backend and frontend multi-stage images, a PostgreSQL-backed Compose stack with a one-shot Alembic migration service, named database persistence, service health checks, safe environment templates, and deployment documentation. `docker compose --env-file .env.example config` passed. `docker compose ... build` could not run because the Docker API pipe is unavailable; no container build or deployment is claimed. AWS resources and deployment artifacts were intentionally not created.
 
 ## Phase 12 — Documentation, release verification, presentation preparation, and interview rehearsal
 
