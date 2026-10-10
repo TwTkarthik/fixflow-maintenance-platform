@@ -2,12 +2,12 @@
 
 ## 1. Project status and last-updated date
 
-**Status:** Phase 11 Docker packaging is in progress. Compose configuration and deployment documentation are complete and statically validated; runtime container verification is blocked because Docker Desktop's Linux engine is unavailable. Authenticated browser workflows from Phase 9 remain an explicitly recorded limitation; Phase 12 has not started.
+**Status:** Phase 12 release verification and demonstration preparation is in progress. The Phase 12 release checklist and demo runbook are documented; independent frontend/static checks and the public API health endpoint passed. Database-backed integration, Docker runtime, and authenticated browser acceptance remain blocked or unverified in the current environment.
 **Last updated:** October 10, 2026
 
 ## 2. Current phase
 
-Phase 11 — Docker packaging and optional AWS deployment is in progress. Phase 10 is complete; Phase 9 authenticated browser verification remains outstanding; no Phase 12 work has started.
+Phase 12 — Documentation, release verification, presentation preparation, and interview rehearsal is in progress. Phase 10 is complete; Phase 9 authenticated browser verification remains outstanding; Phase 11 Compose runtime verification remains blocked by the unavailable Docker Desktop Linux engine.
 
 ## 3. Overall completion state
 
@@ -102,7 +102,16 @@ Phase 7 did not add frontend dashboard pages, notifications, deployment packagin
 - Kept the database password out of `DATABASE_URL` in Compose and passed it through `PGPASSWORD`, so URL-reserved password characters remain supported.
 - Added `docs/DEPLOYMENT.md` covering local Compose operation, migration ordering, persistent storage, health checks, production handling, and an optional AWS ECS/RDS architecture note.
 - `docker compose --env-file .env.example config` passed. A real image build and runtime smoke test were not possible because Docker Desktop's Linux engine is not running; no AWS deployment was attempted or claimed.
-- No database migration was needed, and no Phase 12 work was started.
+- No database migration was needed. Phase 12 release documentation and verification work is recorded in the next section.
+
+## 7E. Phase 12 release verification and demonstration preparation
+
+- Added `docs/RELEASE_CHECKLIST.md` with explicit setup, automated-check, runtime, authenticated-acceptance, and release-decision gates.
+- Added `docs/DEMO_SCRIPT.md` with native and Compose setup, safe disposable role-account/data preparation, administrator/manager/technician walkthroughs, cleanup guidance, and evidence-recording rules.
+- Updated `README.md`, `docs/DEVELOPMENT_ROADMAP.md`, and `docs/DEPLOYMENT.md` so current verification claims distinguish passed checks from unavailable-environment blockers.
+- Rechecked the current environment: Docker CLI and Compose are installed, but the Docker Desktop Linux engine is unavailable; PostgreSQL is not listening on `127.0.0.1:5432`.
+- Passed the frontend test suite (12 tests), frontend production build, frontend dependency-tree check, Python compilation, `pip check`, Compose configuration rendering, and the public FastAPI health endpoint (`200` with the expected JSON). The unauthenticated frontend login shell was observed in the in-app browser.
+- Backend integration tests, live Alembic drift checking, Docker build/runtime, and authenticated browser workflows remain unverified or blocked. No confirmed application defect was reproduced and no database migration was needed.
 
 ## 8. Phase 4 work completed
 
@@ -256,6 +265,7 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - `.\\venv\\Scripts\\python.exe -m pytest -q` — passed, 31 tests.
 - `.\\venv\\Scripts\\python.exe -m compileall -q app tests` — passed.
 - `.\\venv\\Scripts\\python.exe -m pip check` — passed, no broken requirements.
+- `pip-audit` availability check — the command is not installed; no backend advisory scan is claimed.
 - `.\\venv\\Scripts\\alembic.exe check` — passed, no new upgrade operations detected.
 - `docker compose --env-file .env.example config` — passed; all four services, environment interpolation, dependencies, health checks, and the named PostgreSQL volume rendered successfully.
 - Compose-style password handling check — passed; a password-free SQLAlchemy URL connected successfully using `PGPASSWORD`.
@@ -266,6 +276,27 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - `pip-audit` — unavailable because the utility is not installed; backend dependency consistency was verified with `pip check`.
 - `npm install react-router-dom@^7.0.0 --no-audit --no-fund` — passed; React Router was added to the frontend dependencies and lockfile.
 - `git diff --check` — passed; only expected line-ending normalization warnings were reported by Git.
+
+### Phase 12 verification commands actually executed
+
+- `git status --short --branch` and `git log --oneline --decorate -8` — passed; the workspace started clean on `master` at `15203e7 (build: add FixFlow Docker packaging)`.
+- `docker version` — Docker CLI `29.6.2` is installed, but connection to the `dockerDesktopLinuxEngine` named pipe failed because the daemon is unavailable.
+- `docker compose version` — passed, Compose `v5.3.1`.
+- `pg_isready -h 127.0.0.1 -p 5432` — no response; PostgreSQL was not listening in this environment.
+- `npm test` — passed, 12 tests in 2 files.
+- `npm run build` — passed with Vite `6.4.4`.
+- `npm ls --depth=0` — passed; all declared frontend dependencies resolved.
+- `npm audit --audit-level=high` — passed after retrying with network access; reported 0 vulnerabilities.
+- `.\\venv\\Scripts\\python.exe -m compileall -q app tests` — passed.
+- `.\\venv\\Scripts\\python.exe -m pip check` — passed, no broken requirements.
+- `docker compose --env-file .env.example config` — passed; all four services, dependencies, health checks, environment interpolation, and the named volume rendered.
+- `.\\venv\\Scripts\\alembic.exe check` — blocked by PostgreSQL connection failure (`127.0.0.1:5432`, Windows permission/refusal error).
+- `.\\venv\\Scripts\\python.exe -m pytest -q` — attempted but could not complete because the PostgreSQL-backed fixtures could not connect; no passing result is claimed for the current environment.
+- `.\\venv\\Scripts\\alembic.exe upgrade head --sql` — passed; the initial PostgreSQL migration rendered offline SQL for all five tables and the `e98ccb2cbf89` version row.
+- OpenAPI generation — passed; 17 expected API paths were registered, including health, auth, assets, work orders, dashboard, and both reports.
+- Local Uvicorn plus `Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8000/api/health` — passed with HTTP 200 and `{"status":"ok","service":"fixflow-api"}`. The server was started outside the sandbox for this check and was not used as evidence of database connectivity.
+- Codex in-app browser at `http://127.0.0.1:5173/` — passed for the unauthenticated FixFlow login shell; the expected email/password fields, sign-in control, and administrator-help copy were visible. Authenticated form submission was not performed.
+- `git diff --check` — passed; only expected LF/CRLF normalization warnings were reported.
 
 ## 14. Tests and verification results
 
@@ -311,15 +342,19 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 
 - Confirmed Phase 10 defect: asset create/update requests silently ignored unknown fields; fixed with strict Pydantic input models and regression tests.
 - No other confirmed application defect or critical security blocker was found by the Phase 10 review.
-- Full authenticated browser smoke verification with provisioned administrator, manager, and technician accounts remains outstanding.
+- Full authenticated browser smoke verification with provisioned administrator, manager, and technician accounts remains outstanding in this run. The unauthenticated login shell was observed successfully.
 - Credentials remain local-only and are not tracked; another developer must configure their own `backend/.env`.
 - Stateless JWTs are not server-revocable before expiry; logout requires client-side token disposal.
+- PostgreSQL is not listening on `127.0.0.1:5432`; the backend integration suite and live Alembic drift check cannot connect.
 - Docker Desktop's Linux engine is not running, so image builds and container smoke verification remain outstanding.
+- `npm audit --audit-level=high` initially hit the sandbox DNS restriction, then passed with network access and reported 0 vulnerabilities.
 
 ## 16. Incomplete tasks
 
-- Complete Phase 9 authenticated local browser smoke verification using disposable administrator, manager, and technician accounts, then clean up all created records.
+- Start PostgreSQL or the Compose database, run the backend suite and Alembic drift check, and record the actual results.
+- Complete authenticated local browser smoke verification using disposable administrator, manager, and technician accounts, then clean up all created records.
 - Start Docker Desktop's Linux engine and run the documented Compose build and health/migration smoke verification.
+- Retry `npm audit --audit-level=high` when registry DNS/network access is available.
 - Preserve the existing migration history and use new reviewed migrations for future schema changes.
 
 ## 17. Decisions awaiting approval
@@ -329,11 +364,11 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 
 ## 18. Next phase
 
-Phase 11 — Docker packaging is in progress pending runtime verification. Phase 12 remains not started.
+There is no planned Phase 13. Finish the remaining Phase 11/12 verification gates, or record them as explicitly excluded limitations for the interview demonstration.
 
 ## 19. Exact next action
 
-Start Docker Desktop's Linux engine, run `docker compose --env-file .env up --build`, verify migration/API/frontend health, and then decide whether to proceed to Phase 12 release preparation.
+Restore PostgreSQL availability first, run the backend suite and `alembic check`, then start Docker Desktop's Linux engine and run `docker compose --env-file .env up --build`. After the stack is healthy, execute the authenticated role-based browser pass in `docs/DEMO_SCRIPT.md` and update this record with observed results.
 
 ## 20. Acceptance criteria before proceeding
 
@@ -360,4 +395,4 @@ Start Docker Desktop's Linux engine, run `docker compose --env-file .env up --bu
 
 ## Phase verification summary
 
-Phase 5 is **complete** as of October 10, 2026. Phase 6 is **complete** as of October 10, 2026. Phase 7 is **complete** as of October 10, 2026. Phase 8 is **complete** as of October 10, 2026. Phase 9 automated verification is complete but authenticated browser workflows remain outstanding due the documented credential/browser-control limitation. Phase 10 is **complete** as of October 10, 2026: the frontend suite passed with **12 tests**, the backend suite passed with **33 tests**, the disposable-schema migration passed, and the npm audit reported **0 vulnerabilities** after the Vitest upgrade. Phase 11 is **in progress**: Compose configuration and deployment documentation passed static review, but runtime container verification is blocked by the unavailable Docker Desktop Linux engine. No schema migration was added; no credentials or environment files are tracked; AWS deployment was not attempted; and Phase 12 was not started.
+Phase 5 is **complete** as of October 10, 2026. Phase 6 is **complete** as of October 10, 2026. Phase 7 is **complete** as of October 10, 2026. Phase 8 is **complete** as of October 10, 2026. Phase 9 automated verification is complete but authenticated browser workflows remain outstanding. Phase 10 is **complete** as of October 10, 2026: the frontend suite passed with **12 tests**, the backend suite passed with **33 tests** in the prior verified environment, the disposable-schema migration passed, and the npm audit reported **0 vulnerabilities** after the Vitest upgrade. Phase 11 remains **in progress**: Compose configuration and deployment documentation passed static review, but runtime container verification is blocked by the unavailable Docker Desktop Linux engine. Phase 12 is **in progress**: release documentation and the demo runbook were added, the current frontend suite/build and npm audit passed, while current database-backed, Docker runtime, and authenticated-browser gates remain incomplete. No schema migration was added; no credentials or environment files are tracked; AWS deployment was not attempted.

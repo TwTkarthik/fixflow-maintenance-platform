@@ -60,4 +60,10 @@ This is an architecture note, not a deployment claim. No AWS resources, credenti
 
 ## Verification boundary
 
-Phase 11 can validate Compose configuration statically with `docker compose config`. A real image build and container smoke run require a working Docker daemon. The current development environment has Docker CLI and Compose installed, but Docker Desktop's Linux engine is not running, so no container build or runtime result is claimed until that prerequisite is available.
+Compose configuration can be validated statically with:
+
+```powershell
+docker compose --env-file .env config
+```
+
+A real image build and container smoke run require a working Docker daemon. In the October 10, 2026 Phase 12 verification environment, Docker CLI `29.6.2` and Compose `v5.3.1` were installed, but the Docker Desktop Linux engine was unavailable through `dockerDesktopLinuxEngine`; no container build or runtime result is claimed. Start Docker Desktop's Linux engine, rerun the build and runtime checks in [the release checklist](RELEASE_CHECKLIST.md), and record their actual output before treating the Compose path as release-ready.

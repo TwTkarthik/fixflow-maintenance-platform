@@ -4,9 +4,9 @@ FixFlow is a maintenance and repair management platform for small and medium-siz
 
 ## Current status
 
-Phases 1–8 are complete and verified, and the Phase 10 testing/debugging/security review is complete: the repository contains a FastAPI backend, a React/Vite frontend connected to the documented APIs, SQLAlchemy models, an applied Alembic migration, JWT authentication, backend role dependencies, authenticated equipment APIs, PostgreSQL-backed work-order/maintenance workflows, dashboard/reporting APIs, and focused frontend/backend regression coverage.
+Phase 12 release verification and demonstration preparation is in progress. The repository contains the verified FastAPI, React/Vite, SQLAlchemy/Alembic, JWT, equipment, work-order, maintenance, dashboard, reporting, and Docker Compose implementation from Phases 1–11. The Phase 12 release checklist and local demonstration runbook are documented, and the current environment has passed the independent frontend/build/static checks and the public API health check.
 
-Authenticated browser smoke verification remains outstanding because safe disposable credentials and an allowed automated password-entry path were unavailable. Phase 11 adds a documented Docker Compose workflow; AWS deployment remains optional future work. Administrator user-management UI is deferred until a backend user-management API exists.
+The current environment cannot complete database-backed verification because PostgreSQL is not listening, and cannot complete Docker verification because Docker Desktop's Linux engine is unavailable. The current `npm audit --audit-level=high` check reports 0 vulnerabilities. Authenticated browser workflows remain unverified in this run. These are release limitations, not claims of a fully verified deployment. Administrator user-management UI remains deferred because the current backend exposes no user-management API.
 
 ## Planned features
 
@@ -109,7 +109,7 @@ Phase 4 provides:
 
 Configure `JWT_SECRET_KEY` in `backend/.env` with a random secret of at least 32 characters. Generate one locally without printing it using Python's `secrets.token_urlsafe(48)`, then store it only in `backend/.env`.
 
-Create the first administrator interactively after the Phase 3 migration is applied with `python -m app.cli.create_admin`.
+Create the first administrator interactively after the Phase 3 migration is applied with `python -m app.cli.create_admin`. For a disposable local demonstration, provision additional manager and technician records using the password-prompting procedure in [the demo script](docs/DEMO_SCRIPT.md); there is no public registration endpoint or user-management API.
 
 There is no public registration endpoint. Logout for stateless JWT authentication means discarding the token on the client; server-side revocation is not implemented in this phase.
 
@@ -190,6 +190,8 @@ The Compose stack publishes the frontend at `http://localhost:5173`, the backend
 - [Development roadmap](docs/DEVELOPMENT_ROADMAP.md) — ordered implementation lifecycle.
 - [Decision log](docs/DECISIONS.md) — approved technical choices and provisional decisions.
 - [Deployment guide](docs/DEPLOYMENT.md) — Docker Compose workflow, persistence, health checks, and optional AWS architecture.
+- [Release checklist](docs/RELEASE_CHECKLIST.md) — evidence-based release gates and verification record.
+- [Demo script](docs/DEMO_SCRIPT.md) — disposable setup, role walkthrough, cleanup, and interview rehearsal.
 - [Agent instructions](AGENTS.md) — persistent rules for future development work.
 
 ## Scope note

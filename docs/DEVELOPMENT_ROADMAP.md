@@ -2,7 +2,7 @@
 
 This roadmap is the intended lifecycle. Work proceeds in order, and the status document records what is actually underway. A later phase must not be treated as complete because its files or plans exist.
 
-**Current roadmap state:** Phases 1–8 are complete and verified. Phase 9 authenticated browser workflows remain an explicitly recorded limitation. Phase 10 testing, debugging, and security review is complete and verified. Phase 11 packaging is in progress: Compose configuration is validated, but runtime image/build verification is blocked by the unavailable Docker Desktop Linux engine. Phase 12 and all later phases remain not started. The local PostgreSQL schema remains at Alembic revision `e98ccb2cbf89`; no Phase 6–11 schema migration was needed.
+**Current roadmap state:** Phases 1–8 are complete and verified. Phase 9 authenticated browser workflows remain an explicitly recorded limitation. Phase 10 testing, debugging, and security review is complete and verified. Phase 11 packaging remains incomplete because Compose runtime image/build verification is blocked by the unavailable Docker Desktop Linux engine. Phase 12 release verification and demonstration preparation is in progress; its checklist and demo runbook are now documented, but the database-backed and authenticated acceptance gates remain pending. The local PostgreSQL schema remains at Alembic revision `e98ccb2cbf89` when available; no Phase 6–12 schema migration was needed.
 
 ## Phase 1 — Project foundation and master documentation
 
@@ -168,6 +168,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 
 ## Phase 12 — Documentation, release verification, presentation preparation, and interview rehearsal
 
+**Status:** In progress as of October 10, 2026. The release checklist and local demonstration runbook are complete, and independent frontend/static checks plus the public API health check passed. Full integration remains pending because PostgreSQL is unavailable, Docker Desktop's Linux engine is unavailable, and authenticated browser workflows have not been exercised in this run.
+
 **Objective:** Prepare a truthful, repeatable release and interview demonstration.
 
 **Planned tasks:** Finalize setup/use/API documentation, release checklist, known limitations, sample data procedure, local demo script, architecture explanation, trade-off notes, and rehearsal against the October 19, 2026 target.
@@ -177,3 +179,5 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 **Deliverables:** Release-ready documentation and demonstration plan.
 
 **Completion criteria:** Another developer can run the documented project; the demo follows real verified flows; limitations and future work are stated accurately.
+
+**Phase 12 outcome so far:** Added `docs/RELEASE_CHECKLIST.md` and `docs/DEMO_SCRIPT.md`, updated the README, deployment guidance, and project status language to distinguish verified checks from blocked integration checks, and recorded the current environment results. The current frontend advisory scan reports 0 vulnerabilities. No application code or database migration was changed because no confirmed defect was reproduced and the database-dependent acceptance pass could not be completed.
