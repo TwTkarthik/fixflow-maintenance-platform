@@ -2,12 +2,12 @@
 
 ## 1. Project status and last-updated date
 
-**Status:** Phase 8 frontend implementation complete and verified with the production build; Phase 9 end-to-end smoke verification is next.
+**Status:** Phase 9 verification is in progress. Frontend smoke-test infrastructure, backend regression checks, local service health, and unauthenticated browser startup verification are complete; authenticated browser workflows remain outstanding.
 **Last updated:** October 10, 2026
 
 ## 2. Current phase
 
-Phase 8 — Frontend implementation is complete. Phase 7 remains complete, including authenticated dashboard and reporting APIs; Phase 9 integration smoke verification remains next.
+Phase 9 — Frontend/backend integration verification is underway. Phases 1–8 remain complete; no Phase 10 work has started.
 
 ## 3. Overall completion state
 
@@ -75,6 +75,15 @@ Phase 7 did not add frontend dashboard pages, notifications, deployment packagin
 - Added work-order and maintenance reports with live filters, inclusive date-bound parameters, pagination, and role-scoped backend results.
 - Added a shared frontend API client that uses `VITE_API_BASE_URL`, the existing response envelopes, and the existing backend endpoint contracts; no mock data or frontend-only authorization was introduced.
 - No backend files or database schema were changed. Administrator user-management UI remains deferred because the current backend exposes no user-management endpoints.
+
+## 7B. Phase 9 verification work completed
+
+- Added a lightweight Vitest/jsdom frontend test runner with React Testing Library and shared cleanup setup.
+- Added seven focused frontend smoke tests covering unauthenticated startup, invalid-login feedback, session restoration, expired-token reset, dashboard API errors, protected navigation into empty work-order/report states, and manager-versus-technician equipment controls.
+- Re-ran the real PostgreSQL-backed FastAPI suite, Python compilation, dependency checks, and Alembic schema-drift detection; no backend or schema changes were needed.
+- Started the configured FastAPI and Vite services and verified the FastAPI health response from the live local service.
+- Opened the live Vite app in the Codex in-app browser and verified the FixFlow sign-in page, expected fields, sign-in control, and administrator-help copy.
+- Authenticated browser workflows were not executed: no disposable test credentials were provisioned for this run, and the available browser-control policy does not permit automated password entry. The backend authentication and authorization contracts remain covered by the 31-test regression suite.
 
 ## 8. Phase 4 work completed
 
@@ -219,7 +228,16 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - Added dashboard/reporting query services, response schemas, routes, database-level filters, aggregate breakdowns, and technician isolation tests.
 - Verified dashboard/reporting route registration and OpenAPI metadata.
 - Implemented the React application shell, protected navigation, live dashboard, equipment/work-order/report screens, responsive styling, API client, forms, and role-aware controls.
-- `npm run build` — passed with Vite `6.4.4` after the Phase 8 changes.
+- `npm run build` — passed with Vite `6.4.4` after Phase 9 test-runner changes.
+- `npm test` — passed; Vitest `3.2.7` ran 7 frontend smoke tests through jsdom and React Testing Library.
+- `npm ls --depth=0` — passed; all declared frontend dependencies resolved, including Vitest, jsdom, and React Testing Library.
+- Started FastAPI with `.\\venv\\Scripts\\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000` and Vite with `.\\node_modules\\.bin\\vite.cmd --host 127.0.0.1 --port 5173` for local smoke verification.
+- `Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8000/api/health` — passed, returning `{"status":"ok","service":"fixflow-api"}`.
+- Codex in-app browser opened `http://localhost:5173/` — passed for unauthenticated startup and login-shell rendering; credentialed flows were not automated.
+- `.\\venv\\Scripts\\python.exe -m pytest -q` — passed, 31 tests.
+- `.\\venv\\Scripts\\python.exe -m compileall -q app tests` — passed.
+- `.\\venv\\Scripts\\python.exe -m pip check` — passed, no broken requirements.
+- `.\\venv\\Scripts\\alembic.exe check` — passed, no new upgrade operations detected.
 - `npm install react-router-dom@^7.0.0 --no-audit --no-fund` — passed; React Router was added to the frontend dependencies and lockfile.
 - `git diff --check` — passed; only expected line-ending normalization warnings were reported by Git.
 
@@ -230,7 +248,7 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - Python `compileall`: **passed**.
 - `pip check`: **passed**, no broken requirements.
 - PostgreSQL offline migration SQL rendering: **passed** after the schema alignment update; all five tables, approved asset fields, maintenance outcome/completion fields, constraints, foreign keys, indexes, and migration bookkeeping SQL rendered for PostgreSQL.
-- Existing frontend production build: **passed** with Vite `6.4.4`; no frontend files were changed.
+- Existing frontend production build: **passed** with Vite `6.4.4` after the Phase 9 test-runner changes.
 - PostgreSQL live readiness: **passed**; service is running and port 5432 accepts connections.
 - PostgreSQL authentication and live migration: **passed**; the initial migration is applied to the configured local development database.
 - `alembic current`: **passed**, reporting `e98ccb2cbf89 (head)`.
@@ -249,19 +267,26 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - Full FastAPI route inspection: **passed**; `/api/dashboard`, `/api/reports/work-orders`, and `/api/reports/maintenance` are registered.
 - Frontend Vite production build regression: **passed** with Vite `6.4.4`; no frontend source files were changed.
 - Phase 8 frontend production build: **passed** with Vite `6.4.4`; the generated `frontend/dist` output remains ignored.
-- Frontend test runner: **not configured** in the existing package; the production build was the available automated frontend check.
+- Frontend test runner: **configured in Phase 9** with Vitest, jsdom, and React Testing Library; the focused smoke suite passed.
 - Backend regression suite from `backend/.venv`: **passed, 31 passed in 6.20s** against the configured PostgreSQL-backed test fixtures.
 - Backend regression attempt from the system Python: **blocked by environment**, because `python -m pytest -q` could not import the existing `jwt` dependency (`ModuleNotFoundError: No module named 'jwt'`). No backend files changed in Phase 8.
+- Frontend smoke suite: **passed, 7 tests** with Vitest `3.2.7`, jsdom `26.1.0`, and React Testing Library `16.3.3`.
+- Frontend dependency tree: **passed**, `npm ls --depth=0` reported no missing or invalid packages.
+- Live FastAPI health endpoint: **passed**, returning the expected healthy-service JSON.
+- Live browser startup: **passed** for the unauthenticated login shell in the Codex in-app browser.
+- Authenticated browser smoke: **not run** because safe disposable credentials and an allowed browser-auth interaction path were unavailable; this is a verification limitation, not a claimed pass.
+- Alembic schema drift: **passed**, no new upgrade operations detected.
 
 ## 15. Current bugs and blockers
 
-- No Phase 8 implementation blockers remain. Full browser smoke verification with a provisioned login account remains part of Phase 9.
+- No confirmed Phase 9 application defect was found by the automated suite or unauthenticated browser startup check.
+- Full authenticated browser smoke verification with provisioned administrator, manager, and technician accounts remains outstanding.
 - Credentials remain local-only and are not tracked; another developer must configure their own `backend/.env`.
 - Stateless JWTs are not server-revocable before expiry; logout requires client-side token disposal.
 
 ## 16. Incomplete tasks
 
-- Complete Phase 9 end-to-end local smoke verification using a provisioned administrator, manager, and technician account.
+- Complete Phase 9 authenticated local browser smoke verification using disposable administrator, manager, and technician accounts, then clean up all created records.
 - Preserve the existing migration history and use new reviewed migrations for future schema changes.
 
 ## 17. Decisions awaiting approval
@@ -271,11 +296,11 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 
 ## 18. Next phase
 
-Phase 9 — Frontend/backend integration smoke verification.
+Phase 9 — Frontend/backend integration verification is in progress; Phase 10 has not started.
 
 ## 19. Exact next action
 
-Run a clean local browser smoke test from login through equipment, work-order completion, maintenance history, and dashboard/report review; capture any integration defects without changing scope.
+Run a clean authenticated local browser smoke test from login through equipment, work-order completion, maintenance history, and dashboard/report review when safe disposable credentials are available; capture any integration defects without changing scope.
 
 ## 20. Acceptance criteria before proceeding
 
@@ -302,4 +327,4 @@ Run a clean local browser smoke test from login through equipment, work-order co
 
 ## Phase verification summary
 
-Phase 5 is **complete** as of October 10, 2026. Phase 6 is **complete** as of October 10, 2026. Phase 7 is **complete** as of October 10, 2026. Phase 8 is **complete** as of October 10, 2026. The prior complete backend suite passed with **31 tests** against PostgreSQL using rollback-only isolation. The Phase 8 frontend build passed; no schema migration or backend change was required; no credentials or environment files are tracked; and Docker/AWS work was not started.
+Phase 5 is **complete** as of October 10, 2026. Phase 6 is **complete** as of October 10, 2026. Phase 7 is **complete** as of October 10, 2026. Phase 8 is **complete** as of October 10, 2026. Phase 9 is **in progress**: the frontend smoke suite passed with **7 tests**, the backend suite passed with **31 tests**, the live FastAPI health check passed, and the unauthenticated browser startup check passed. Authenticated browser workflows remain outstanding; no schema migration or backend change was required; no credentials or environment files are tracked; and Docker/AWS work was not started.

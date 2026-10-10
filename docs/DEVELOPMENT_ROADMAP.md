@@ -2,7 +2,7 @@
 
 This roadmap is the intended lifecycle. Work proceeds in order, and the status document records what is actually underway. A later phase must not be treated as complete because its files or plans exist.
 
-**Current roadmap state:** Phases 1–8 are complete and verified. The local PostgreSQL schema remains at Alembic revision `e98ccb2cbf89`; Phases 6–8 required no schema migration. Phase 9 is next; all later phases remain not started.
+**Current roadmap state:** Phases 1–8 are complete and verified. Phase 9 verification is in progress: frontend smoke tests and unauthenticated browser startup are verified, while authenticated browser workflows remain outstanding. The local PostgreSQL schema remains at Alembic revision `e98ccb2cbf89`; Phases 6–9 required no schema migration. Phase 10 and all later phases remain not started.
 
 ## Phase 1 — Project foundation and master documentation
 
@@ -120,6 +120,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 
 ## Phase 9 — Frontend/backend integration
 
+**Status:** In progress as of October 10, 2026. Automated frontend smoke coverage, backend regression checks, live FastAPI health, and unauthenticated browser startup passed. Authenticated browser workflows remain outstanding because safe disposable credentials and an allowed browser-auth interaction path were unavailable.
+
 **Objective:** Connect the real React client to the real FastAPI APIs and verify end-to-end flows.
 
 **Planned tasks:** Configure API base URL, login/token handling, request/error utilities, forms and list queries, dashboard data, CORS, and integrated local smoke tests.
@@ -129,6 +131,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 **Deliverables:** Full local user journeys backed by PostgreSQL.
 
 **Completion criteria:** A clean local environment supports login through completed maintenance and dashboard review; no mock data remains in production paths; integration failures are actionable.
+
+**Phase 9 verification outcome:** Added Vitest/jsdom and React Testing Library, with seven focused tests covering startup, login failure, session restoration, expired-token reset, dashboard API errors, protected navigation into empty work-order/report states, and role-aware equipment controls. `npm test`, `npm run build`, the 31-test PostgreSQL-backed backend suite, Python compilation, `pip check`, `npm ls --depth=0`, and `alembic check` passed. The live API health endpoint returned the expected healthy-service response, and the Codex in-app browser rendered the live FixFlow login shell. Credentialed browser journeys were not claimed as verified.
 
 ## Phase 10 — Testing, debugging, and security review
 
