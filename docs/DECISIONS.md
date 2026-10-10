@@ -106,3 +106,10 @@ This log records decisions that constrain implementation. “Final” means appr
 - **Reason:** This gives the MVP a compact operational reporting surface without adding a reporting data warehouse, duplicate counters, or schema changes. Existing indexed relationships support database-level filtering and aggregation.
 - **Trade-offs:** Dashboard date ranges filter work orders by `created_at` and maintenance by `completed_at`; technician asset totals cover only assets connected to their assigned work orders, so they do not represent organization-wide totals. The frontend dashboard remains deferred to Phase 8.
 - **Status:** Final for Phase 7, subject to future reviewed product requirements.
+
+## D-016 — Phase 8 frontend session and API integration
+
+- **Decision:** Use a small shared `fetch` API client configured by `VITE_API_BASE_URL`, store the short-lived access token in browser `sessionStorage`, discard it for logout, and clear the session on an HTTP 401 response. Do not add refresh tokens or frontend-only authorization rules.
+- **Reason:** `sessionStorage` limits token lifetime to the browser tab while matching the backend's stateless client-side logout design. Centralizing requests keeps the existing response envelopes and backend permission boundaries visible to every page.
+- **Trade-offs:** Closing a tab requires signing in again, and a bearer token remains exposed to JavaScript in the active tab. The backend remains the security boundary; a later reviewed refresh/revocation design may change the client session model.
+- **Status:** Final for Phase 8, subject to future reviewed security requirements.

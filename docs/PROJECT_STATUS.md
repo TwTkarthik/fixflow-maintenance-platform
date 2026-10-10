@@ -2,12 +2,12 @@
 
 ## 1. Project status and last-updated date
 
-**Status:** Phase 7 dashboard/reporting APIs complete and verified; Phase 8 frontend implementation is next.
+**Status:** Phase 8 frontend implementation complete and verified with the production build; Phase 9 end-to-end smoke verification is next.
 **Last updated:** October 10, 2026
 
 ## 2. Current phase
 
-Phase 7 — Dashboard and reporting APIs is complete. Phase 6 remains complete, including authenticated work-order listing, filtering, assignment, status transitions, append-only history, notes, completion, and maintenance records.
+Phase 8 — Frontend implementation is complete. Phase 7 remains complete, including authenticated dashboard and reporting APIs; Phase 9 integration smoke verification remains next.
 
 ## 3. Overall completion state
 
@@ -17,7 +17,7 @@ Live database schema: migrated and verified at Alembic revision `e98ccb2cbf89`.
 Authentication and authorization: complete.
 Equipment management: complete.
 Work orders, maintenance, dashboards, and reporting APIs: complete.
-Frontend authentication/equipment/work-order/dashboard UI, Docker, and AWS deployment: not started.
+Frontend authentication, application shell, dashboard, equipment, work-order, history, maintenance, and reports UI: implemented and connected to the documented API contracts. Docker and AWS deployment: not started.
 
 ## 4. Completed phases
 
@@ -64,6 +64,17 @@ Phase 6 did not add frontend work-order pages, dashboard analytics, notification
 - No Alembic migration was needed; all metrics are query-time calculations over the existing schema.
 
 Phase 7 did not add frontend dashboard pages, notifications, deployment packaging, or later-phase functionality.
+
+## 7A. Phase 8 frontend work completed
+
+- Replaced the Phase 2 health-check shell with a protected React application shell and responsive desktop/mobile navigation.
+- Added login, `/auth/me` session restoration, session-scoped bearer-token storage, client-side logout, and automatic sign-in reset for expired or invalid tokens.
+- Added live dashboard cards, status/priority distributions, date filters, loading/error states, and navigation into the operational screens.
+- Added equipment search, category/location/status filters, pagination, detail and maintenance-history views, create/edit forms, and manager/administrator deactivation controls.
+- Added work-order search, status/priority/overdue filters, pagination, active-equipment creation, detail views, history, maintenance records, notes, role-appropriate status transitions, and manager/administrator technician-ID assignment.
+- Added work-order and maintenance reports with live filters, inclusive date-bound parameters, pagination, and role-scoped backend results.
+- Added a shared frontend API client that uses `VITE_API_BASE_URL`, the existing response envelopes, and the existing backend endpoint contracts; no mock data or frontend-only authorization was introduced.
+- No backend files or database schema were changed. Administrator user-management UI remains deferred because the current backend exposes no user-management endpoints.
 
 ## 8. Phase 4 work completed
 
@@ -154,7 +165,7 @@ Modified:
 - `docs/DEVELOPMENT_ROADMAP.md`
 - `docs/PROJECT_STATUS.md`
 
-No frontend files were changed in Phases 4–7. Local `.env`, `.venv`, caches, build output, and logs remain ignored and untracked.
+Phase 8 added or modified `frontend/src/api.js`, `frontend/src/App.jsx`, `frontend/src/styles.css`, `frontend/package.json`, and `frontend/package-lock.json`. Local `.env`, `.venv`, caches, build output, and logs remain ignored and untracked.
 
 ## 11. Environment and database versions verified
 
@@ -207,6 +218,10 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - Verified work-order route registration and status/assignment/maintenance API behavior through FastAPI TestClient.
 - Added dashboard/reporting query services, response schemas, routes, database-level filters, aggregate breakdowns, and technician isolation tests.
 - Verified dashboard/reporting route registration and OpenAPI metadata.
+- Implemented the React application shell, protected navigation, live dashboard, equipment/work-order/report screens, responsive styling, API client, forms, and role-aware controls.
+- `npm run build` — passed with Vite `6.4.4` after the Phase 8 changes.
+- `npm install react-router-dom@^7.0.0 --no-audit --no-fund` — passed; React Router was added to the frontend dependencies and lockfile.
+- `git diff --check` — passed; only expected line-ending normalization warnings were reported by Git.
 
 ## 14. Tests and verification results
 
@@ -233,30 +248,34 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - Phase 7 PostgreSQL-backed dashboard/reporting suite: **passed, 31 passed in 7.38s**; this includes zero-safe dashboard behavior, aggregate counts, date filtering, combined report filters, pagination, invalid ranges, authentication, and technician isolation.
 - Full FastAPI route inspection: **passed**; `/api/dashboard`, `/api/reports/work-orders`, and `/api/reports/maintenance` are registered.
 - Frontend Vite production build regression: **passed** with Vite `6.4.4`; no frontend source files were changed.
+- Phase 8 frontend production build: **passed** with Vite `6.4.4`; the generated `frontend/dist` output remains ignored.
+- Frontend test runner: **not configured** in the existing package; the production build was the available automated frontend check.
+- Backend regression suite from `backend/.venv`: **passed, 31 passed in 6.20s** against the configured PostgreSQL-backed test fixtures.
+- Backend regression attempt from the system Python: **blocked by environment**, because `python -m pytest -q` could not import the existing `jwt` dependency (`ModuleNotFoundError: No module named 'jwt'`). No backend files changed in Phase 8.
 
 ## 15. Current bugs and blockers
 
-- No Phase 7 blockers remain.
+- No Phase 8 implementation blockers remain. Full browser smoke verification with a provisioned login account remains part of Phase 9.
 - Credentials remain local-only and are not tracked; another developer must configure their own `backend/.env`.
 - Stateless JWTs are not server-revocable before expiry; logout requires client-side token disposal.
 
 ## 16. Incomplete tasks
 
-- Implement Phase 8 frontend authentication, application shell, dashboard, equipment, and work-order screens.
+- Complete Phase 9 end-to-end local smoke verification using a provisioned administrator, manager, and technician account.
 - Preserve the existing migration history and use new reviewed migrations for future schema changes.
 
 ## 17. Decisions awaiting approval
 
 - The Phase 5 API contract is recorded in D-013, the Phase 6 workflow contract in D-014, and the Phase 7 reporting contract in D-015.
-- No Phase 7 decision is awaiting approval.
+- The Phase 8 session/API decision is recorded in D-016; no unresolved Phase 8 decision is awaiting approval.
 
 ## 18. Next phase
 
-Phase 8 — Frontend implementation.
+Phase 9 — Frontend/backend integration smoke verification.
 
 ## 19. Exact next action
 
-Build the React application shell, authentication state, protected routes, dashboard, equipment, work-order, history, maintenance, and role-aware UI against the verified backend contracts.
+Run a clean local browser smoke test from login through equipment, work-order completion, maintenance history, and dashboard/report review; capture any integration defects without changing scope.
 
 ## 20. Acceptance criteria before proceeding
 
@@ -283,4 +302,4 @@ Build the React application shell, authentication state, protected routes, dashb
 
 ## Phase verification summary
 
-Phase 5 is **complete** as of October 10, 2026. Phase 6 is **complete** as of October 10, 2026. Phase 7 is **complete** as of October 10, 2026. The complete backend suite passed with **31 tests** against PostgreSQL using rollback-only isolation. Python compilation passed; no schema migration was required; no credentials or environment files are tracked; and no frontend, deployment, or later-phase functionality was added.
+Phase 5 is **complete** as of October 10, 2026. Phase 6 is **complete** as of October 10, 2026. Phase 7 is **complete** as of October 10, 2026. Phase 8 is **complete** as of October 10, 2026. The prior complete backend suite passed with **31 tests** against PostgreSQL using rollback-only isolation. The Phase 8 frontend build passed; no schema migration or backend change was required; no credentials or environment files are tracked; and Docker/AWS work was not started.

@@ -2,7 +2,7 @@
 
 This roadmap is the intended lifecycle. Work proceeds in order, and the status document records what is actually underway. A later phase must not be treated as complete because its files or plans exist.
 
-**Current roadmap state:** Phases 1–7 are complete and verified. The local PostgreSQL schema remains at Alembic revision `e98ccb2cbf89`; Phases 6–7 required no schema migration. Phase 8 is next; all later phases remain not started.
+**Current roadmap state:** Phases 1–8 are complete and verified. The local PostgreSQL schema remains at Alembic revision `e98ccb2cbf89`; Phases 6–8 required no schema migration. Phase 9 is next; all later phases remain not started.
 
 ## Phase 1 — Project foundation and master documentation
 
@@ -104,6 +104,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 
 ## Phase 8 — Frontend implementation
 
+**Status:** Complete and verified on October 10, 2026. The React client is connected to the documented API contracts and its production build passes.
+
 **Objective:** Build the React pages and user interactions against defined API contracts.
 
 **Planned tasks:** Add routing, auth state, protected routes, application shell, dashboard, equipment screens, work-order screens, history/maintenance views, administrator user management, forms, validation, loading/empty/error states, and role-aware UI.
@@ -113,6 +115,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 **Deliverables:** Usable frontend pages with local mock/API configuration only where explicitly documented.
 
 **Completion criteria:** Main journeys are navigable; errors and loading states are understandable; UI does not claim access that the backend would reject; key interactions have tests if time permits.
+
+**Outcome:** The application shell, login/session handling, dashboard, equipment, work-order, history, maintenance, reports, responsive layouts, API client, forms, pagination, loading/error/empty states, and role-aware controls are implemented. User-management UI remains deferred because no corresponding backend API exists. End-to-end browser smoke verification remains in Phase 9.
 
 ## Phase 9 — Frontend/backend integration
 

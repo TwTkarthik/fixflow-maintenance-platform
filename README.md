@@ -4,9 +4,9 @@ FixFlow is a maintenance and repair management platform for small and medium-siz
 
 ## Current status
 
-Phases 1–7 are complete and verified: the repository contains a minimal FastAPI backend, React/Vite frontend skeleton, SQLAlchemy models, an applied Alembic migration, JWT authentication, backend role dependencies, authenticated equipment APIs, PostgreSQL-backed work-order/maintenance workflows, and dashboard/reporting APIs.
+Phases 1–8 are complete and verified: the repository contains a FastAPI backend, a React/Vite frontend connected to the documented APIs, SQLAlchemy models, an applied Alembic migration, JWT authentication, backend role dependencies, authenticated equipment APIs, PostgreSQL-backed work-order/maintenance workflows, and dashboard/reporting APIs.
 
-Frontend login/equipment/work-order/dashboard UI, Docker packaging, and AWS deployment have not been implemented yet.
+End-to-end browser smoke verification, Docker packaging, and AWS deployment remain future work. Administrator user-management UI is deferred until a backend user-management API exists.
 
 ## Planned features
 
@@ -161,7 +161,7 @@ npm install
 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-Open `http://127.0.0.1:5173` or `http://localhost:5173`. The frontend reads `VITE_API_BASE_URL` from `.env`; copy `.env.example` to `.env` only when a different backend URL is needed. Do not place secrets in frontend environment variables.
+Open `http://127.0.0.1:5173` or `http://localhost:5173`. The frontend reads `VITE_API_BASE_URL` from `.env`; copy `.env.example` to `.env` only when a different backend URL is needed. Do not place secrets in frontend environment variables. The short-lived access token is held in browser `sessionStorage` and discarded on logout or an unauthorized response; there is no refresh-token flow.
 
 ### Stopping the servers
 
