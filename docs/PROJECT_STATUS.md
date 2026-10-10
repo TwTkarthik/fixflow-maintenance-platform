@@ -2,7 +2,7 @@
 
 ## 1. Project status and last-updated date
 
-**Status:** Phase 12 release verification and demonstration preparation is in progress. The Phase 12 release checklist and demo runbook are documented; independent frontend/static checks and the public API health endpoint passed. Database-backed integration, Docker runtime, and authenticated browser acceptance remain blocked or unverified in the current environment.
+**Status:** Phase 12 release verification and demonstration preparation is in progress. The Phase 12 release checklist and demo runbook are documented; the maintenance-report blank-screen defect is fixed and frontend regression/build checks pass. Database-backed integration, Docker runtime, and authenticated browser acceptance remain blocked or unverified in the current environment.
 **Last updated:** October 10, 2026
 
 ## 2. Current phase
@@ -110,8 +110,9 @@ Phase 7 did not add frontend dashboard pages, notifications, deployment packagin
 - Added `docs/DEMO_SCRIPT.md` with native and Compose setup, safe disposable role-account/data preparation, administrator/manager/technician walkthroughs, cleanup guidance, and evidence-recording rules.
 - Updated `README.md`, `docs/DEVELOPMENT_ROADMAP.md`, and `docs/DEPLOYMENT.md` so current verification claims distinguish passed checks from unavailable-environment blockers.
 - Rechecked the current environment: Docker CLI and Compose are installed, but the Docker Desktop Linux engine is unavailable; PostgreSQL is not listening on `127.0.0.1:5432`.
-- Passed the frontend test suite (12 tests), frontend production build, frontend dependency-tree check, Python compilation, `pip check`, Compose configuration rendering, and the public FastAPI health endpoint (`200` with the expected JSON). The unauthenticated frontend login shell was observed in the in-app browser.
-- Backend integration tests, live Alembic drift checking, Docker build/runtime, and authenticated browser workflows remain unverified or blocked. No confirmed application defect was reproduced and no database migration was needed.
+- Passed the frontend test suite (16 tests), frontend production build, frontend dependency-tree check, Python compilation, `pip check`, Compose configuration rendering, and the public FastAPI health endpoint (`200` with the expected JSON). The unauthenticated frontend login shell was observed in the in-app browser.
+- Reproduced the maintenance-report blank screen with a `performed_by: null` row: React threw `TypeError: Cannot read properties of null (reading 'full_name')`, leaving the rendered root blank. Fixed the maintenance-row renderer with optional chaining and an `Unknown technician` fallback; valid rows still render WO-0001, equipment, completion date, technician, and outcome details. Added regression coverage for loading, empty, API-error, valid completed-row, and missing-technician states.
+- Backend reporting tests were attempted but blocked because PostgreSQL was unavailable at `127.0.0.1:5432`; Docker runtime and authenticated browser workflows remain unverified or blocked. No backend code or database migration was changed.
 
 ## 8. Phase 4 work completed
 
@@ -327,7 +328,9 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - Frontend test runner: **configured in Phase 9** with Vitest, jsdom, and React Testing Library; the focused smoke suite passed.
 - Backend regression suite from `backend/.venv`: **passed, 31 passed in 6.20s** against the configured PostgreSQL-backed test fixtures.
 - Backend regression attempt from the system Python: **blocked by environment**, because `python -m pytest -q` could not import the existing `jwt` dependency (`ModuleNotFoundError: No module named 'jwt'`). No backend files changed in Phase 8.
-- Frontend smoke suite: **passed, 12 tests** with Vitest `5.0.3`, jsdom `26.1.0`, and React Testing Library `16.3.3`.
+- Frontend smoke suite: **passed, 16 tests** with Vitest `5.0.3`, jsdom `26.1.0`, and React Testing Library `16.3.3`; this includes the maintenance-report blank-screen regression, loading, empty, API-error, valid completed-row, and missing-technician cases.
+- Frontend production build: **passed** with Vite `6.4.4` after the maintenance-report fix.
+- Backend reporting suite attempt: **blocked by environment** because PostgreSQL was unavailable at `127.0.0.1:5432`; no backend test pass is claimed for this run.
 - Frontend dependency tree: **passed**, `npm ls --depth=0` reported no missing or invalid packages.
 - Live FastAPI health endpoint: **passed**, returning the expected healthy-service JSON.
 - Live browser startup: **passed** for the unauthenticated login shell in the Codex in-app browser.
@@ -341,7 +344,7 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 ## 15. Current bugs and blockers
 
 - Confirmed Phase 10 defect: asset create/update requests silently ignored unknown fields; fixed with strict Pydantic input models and regression tests.
-- No other confirmed application defect or critical security blocker was found by the Phase 10 review.
+- The maintenance-report blank-screen defect was reproduced and fixed with frontend regression coverage; no backend or schema change was required.
 - Full authenticated browser smoke verification with provisioned administrator, manager, and technician accounts remains outstanding in this run. The unauthenticated login shell was observed successfully.
 - Credentials remain local-only and are not tracked; another developer must configure their own `backend/.env`.
 - Stateless JWTs are not server-revocable before expiry; logout requires client-side token disposal.
@@ -395,4 +398,4 @@ Restore PostgreSQL availability first, run the backend suite and `alembic check`
 
 ## Phase verification summary
 
-Phase 5 is **complete** as of October 10, 2026. Phase 6 is **complete** as of October 10, 2026. Phase 7 is **complete** as of October 10, 2026. Phase 8 is **complete** as of October 10, 2026. Phase 9 automated verification is complete but authenticated browser workflows remain outstanding. Phase 10 is **complete** as of October 10, 2026: the frontend suite passed with **12 tests**, the backend suite passed with **33 tests** in the prior verified environment, the disposable-schema migration passed, and the npm audit reported **0 vulnerabilities** after the Vitest upgrade. Phase 11 remains **in progress**: Compose configuration and deployment documentation passed static review, but runtime container verification is blocked by the unavailable Docker Desktop Linux engine. Phase 12 is **in progress**: release documentation and the demo runbook were added, the current frontend suite/build and npm audit passed, while current database-backed, Docker runtime, and authenticated-browser gates remain incomplete. No schema migration was added; no credentials or environment files are tracked; AWS deployment was not attempted.
+Phase 5 is **complete** as of October 10, 2026. Phase 6 is **complete** as of October 10, 2026. Phase 7 is **complete** as of October 10, 2026. Phase 8 is **complete** as of October 10, 2026. Phase 9 automated verification is complete but authenticated browser workflows remain outstanding. Phase 10 is **complete** as of October 10, 2026: the frontend suite passed with **12 tests**, the backend suite passed with **33 tests** in the prior verified environment, the disposable-schema migration passed, and the npm audit reported **0 vulnerabilities** after the Vitest upgrade. Phase 11 remains **in progress**: Compose configuration and deployment documentation passed static review, but runtime container verification is blocked by the unavailable Docker Desktop Linux engine. Phase 12 is **in progress**: release documentation and the demo runbook were added, the current frontend suite/build and npm audit passed, and the maintenance-report blank-screen defect was fixed with regression coverage, while current database-backed, Docker runtime, and authenticated-browser gates remain incomplete. No schema migration was added; no credentials or environment files are tracked; AWS deployment was not attempted.

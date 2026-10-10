@@ -119,5 +119,110 @@ describe("FixFlow application smoke coverage", () => {
     fireEvent.click(screen.getByRole("link", { name: /reports/i }));
     expect(await screen.findByText("No report data")).toBeTruthy();
     expect(mockApi.workOrderReport).toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Maintenance report" }));
+    expect(await screen.findByText("No report data")).toBeTruthy();
+    expect(mockApi.maintenanceReport).toHaveBeenCalled();
+  });
+
+  it("shows an actionable error when the maintenance report request fails", async () => {
+    arrangeAuthenticated();
+    mockApi.workOrderReport.mockResolvedValue({ items: [], total: 0, skip: 0, limit: 10 });
+    mockApi.maintenanceReport.mockRejectedValue(new Error("Maintenance report unavailable"));
+
+    render(<App />);
+    await screen.findByRole("heading", { name: /here's the pulse/i });
+    fireEvent.click(screen.getByRole("link", { name: /reports/i }));
+    await screen.findByText("No report data");
+    fireEvent.click(screen.getByRole("button", { name: "Maintenance report" }));
+
+    expect(await screen.findByText("Maintenance report unavailable")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
+  });
+
+  it("renders a completed maintenance record from the maintenance report response", async () => {
+    arrangeAuthenticated();
+    mockApi.workOrderReport.mockResolvedValue({ items: [], total: 0, skip: 0, limit: 10 });
+    mockApi.maintenanceReport.mockResolvedValue({
+      items: [{
+        id: 1,
+        asset_id: 1,
+        asset_code: "PUMP-001",
+        asset_name: "North Plant Pump",
+        work_order_id: 1,
+        performed_by_id: 2,
+        performed_by: { id: 2, full_name: "Tariq Technician", email: "tech@example.test", role: "technician" },
+        outcome: "Pump repaired",
+        work_performed: "Replaced the worn seal.",
+        completed_at: "2026-10-10T10:30:00Z",
+        created_at: "2026-10-10T10:30:00Z",
+      }],
+      total: 1,
+      skip: 0,
+      limit: 10,
+    });
+
+    render(<App />);
+    await screen.findByRole("heading", { name: /here's the pulse/i });
+    fireEvent.click(screen.getByRole("link", { name: /reports/i }));
+    await screen.findByText("No report data");
+    fireEvent.click(screen.getByRole("button", { name: "Maintenance report" }));
+
+    expect(await screen.findByText("WO-0001")).toBeTruthy();
+    expect(screen.getByText("North Plant Pump")).toBeTruthy();
+    expect(screen.getByText("Tariq Technician")).toBeTruthy();
+    expect(screen.getByRole("cell", { name: "Oct 10, 2026" })).toBeTruthy();
+    expect(screen.getByText("Pump repaired")).toBeTruthy();
+  });
+
+  it("does not blank the page when a maintenance row has no technician summary", async () => {
+    arrangeAuthenticated();
+    mockApi.workOrderReport.mockResolvedValue({ items: [], total: 0, skip: 0, limit: 10 });
+    mockApi.maintenanceReport.mockResolvedValue({
+      items: [{
+        id: 1,
+        asset_id: 1,
+        asset_code: "PUMP-001",
+        asset_name: "North Plant Pump",
+        work_order_id: 1,
+        performed_by_id: 2,
+        performed_by: null,
+        outcome: "Pump repaired",
+        work_performed: "Replaced the worn seal.",
+        completed_at: "2026-10-10T10:30:00Z",
+        created_at: "2026-10-10T10:30:00Z",
+      }],
+      total: 1,
+      skip: 0,
+      limit: 10,
+    });
+
+    render(<App />);
+    await screen.findByRole("heading", { name: /here's the pulse/i });
+    fireEvent.click(screen.getByRole("link", { name: /reports/i }));
+    await screen.findByText("No report data");
+    fireEvent.click(screen.getByRole("button", { name: "Maintenance report" }));
+
+    expect(await screen.findByText("Unknown technician")).toBeTruthy();
+    expect(screen.getByText("North Plant Pump")).toBeTruthy();
+  });
+
+  it("shows the loading state while the maintenance report request is pending", async () => {
+    arrangeAuthenticated();
+    mockApi.workOrderReport.mockResolvedValue({ items: [], total: 0, skip: 0, limit: 10 });
+    let resolveMaintenance;
+    mockApi.maintenanceReport.mockReturnValue(new Promise((resolve) => {
+      resolveMaintenance = resolve;
+    }));
+
+    render(<App />);
+    await screen.findByRole("heading", { name: /here's the pulse/i });
+    fireEvent.click(screen.getByRole("link", { name: /reports/i }));
+    await screen.findByText("No report data");
+    fireEvent.click(screen.getByRole("button", { name: "Maintenance report" }));
+
+    expect(screen.getByText("Loading report…")).toBeTruthy();
+    resolveMaintenance({ items: [], total: 0, skip: 0, limit: 10 });
+    expect(await screen.findByText("No report data")).toBeTruthy();
   });
 });
