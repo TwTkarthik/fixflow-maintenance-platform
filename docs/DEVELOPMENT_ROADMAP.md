@@ -2,7 +2,7 @@
 
 This roadmap is the intended lifecycle. Work proceeds in order, and the status document records what is actually underway. A later phase must not be treated as complete because its files or plans exist.
 
-**Current roadmap state:** Phases 1–6 are complete and verified. The local PostgreSQL schema remains at Alembic revision `e98ccb2cbf89`; Phase 6 required no schema migration. Phase 7 is next; all later phases remain not started.
+**Current roadmap state:** Phases 1–7 are complete and verified. The local PostgreSQL schema remains at Alembic revision `e98ccb2cbf89`; Phases 6–7 required no schema migration. Phase 8 is next; all later phases remain not started.
 
 ## Phase 1 — Project foundation and master documentation
 
@@ -90,6 +90,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 
 ## Phase 7 — Dashboard and reporting APIs
 
+**Status:** Complete and verified on October 10, 2026. The existing schema was sufficient, so no new Alembic revision was required.
+
 **Objective:** Expose useful operational metrics calculated from current records.
 
 **Planned tasks:** Implement authenticated aggregate queries for open/overdue work, priority/status distributions, equipment attention indicators, and role-appropriate visibility; add query and permission tests.
@@ -98,7 +100,7 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 
 **Deliverables:** Dashboard/reporting endpoints and verified aggregate tests.
 
-**Completion criteria:** Metrics match fixture data, do not rely on hard-coded counters, honor filters/permissions, and remain acceptable for a modest local dataset.
+**Completion criteria:** Metrics match fixture data, do not rely on hard-coded counters, honor filters/permissions, and remain acceptable for a modest local dataset. **Met:** 31 PostgreSQL-backed tests passed, including dashboard aggregates, date filtering, report pagination, invalid ranges, and technician isolation.
 
 ## Phase 8 — Frontend implementation
 

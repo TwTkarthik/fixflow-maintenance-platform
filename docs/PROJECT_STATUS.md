@@ -2,12 +2,12 @@
 
 ## 1. Project status and last-updated date
 
-**Status:** Phase 6 work-order and maintenance APIs complete and verified; Phase 7 dashboard/reporting APIs is next.
+**Status:** Phase 7 dashboard/reporting APIs complete and verified; Phase 8 frontend implementation is next.
 **Last updated:** October 10, 2026
 
 ## 2. Current phase
 
-Phase 6 — Work-order and maintenance APIs is complete. Phase 5 remains complete, including authenticated equipment listing, filtering, pagination, creation, retrieval, updates, conflict handling, and idempotent deactivation.
+Phase 7 — Dashboard and reporting APIs is complete. Phase 6 remains complete, including authenticated work-order listing, filtering, assignment, status transitions, append-only history, notes, completion, and maintenance records.
 
 ## 3. Overall completion state
 
@@ -16,8 +16,8 @@ Database model and migration source: implemented and verified.
 Live database schema: migrated and verified at Alembic revision `e98ccb2cbf89`.
 Authentication and authorization: complete.
 Equipment management: complete.
-Work orders and maintenance APIs: complete.
-Dashboards, frontend authentication/equipment/work-order UI, Docker, and AWS deployment: not started.
+Work orders, maintenance, dashboards, and reporting APIs: complete.
+Frontend authentication/equipment/work-order/dashboard UI, Docker, and AWS deployment: not started.
 
 ## 4. Completed phases
 
@@ -53,7 +53,19 @@ No work-order CRUD, technician assignment, maintenance completion, dashboard ana
 
 Phase 6 did not add frontend work-order pages, dashboard analytics, notifications, recurring maintenance, Docker packaging, or cloud deployment.
 
-## 6. Phase 4 work completed
+## 7. Phase 7 work completed
+
+- Authenticated `GET /api/dashboard` calculates asset totals, work-order totals, outstanding and overdue counts, completed-work counts, status/priority distributions, maintenance totals, and assets needing attention from live database records.
+- Authenticated `GET /api/reports/work-orders` provides deterministic pagination with date, status, priority, asset, assignee, overdue, and text-search filters.
+- Authenticated `GET /api/reports/maintenance` provides deterministic pagination with date, status, priority, asset, assignee/performed-by, and text-search filters.
+- Date filters accept inclusive `YYYY-MM-DD` or timezone-aware ISO-8601 bounds; invalid values and reversed ranges return 422.
+- Administrators and managers receive organization-level results. Technicians are scoped in SQL to assigned work orders before report totals and dashboard aggregates are calculated.
+- Empty dashboards return zero counts and complete zero-valued status/priority breakdowns.
+- No Alembic migration was needed; all metrics are query-time calculations over the existing schema.
+
+Phase 7 did not add frontend dashboard pages, notifications, deployment packaging, or later-phase functionality.
+
+## 8. Phase 4 work completed
 
 - Argon2id password hashing through `pwdlib`; only password hashes are stored.
 - JSON login at `POST /api/auth/login` with generic invalid-credential responses.
@@ -67,7 +79,7 @@ Phase 6 did not add frontend work-order pages, dashboard analytics, notification
 
 No work-order APIs, user-management CRUD, dashboard functionality, frontend login/equipment UI, or cloud deployment were added.
 
-## 7. Phase 3 work completed
+## 9. Phase 3 work completed
 
 - Centralized environment-based `DATABASE_URL` configuration.
 - SQLAlchemy 2.x declarative base, naming conventions, lazy engine creation, session factory, and cleanup dependency.
@@ -83,7 +95,7 @@ No work-order APIs, user-management CRUD, dashboard functionality, frontend logi
 
 No Phase 4 or Phase 5 functionality was added during the Phase 3 implementation.
 
-## 8. Files created or modified
+## 10. Files created or modified
 
 Created:
 
@@ -110,14 +122,18 @@ Created:
 - `backend/app/schemas/user.py`
 - `backend/app/schemas/asset.py`
 - `backend/app/schemas/work_order.py`
+- `backend/app/schemas/reporting.py`
 - `backend/app/api/routes/assets.py`
 - `backend/app/api/routes/work_orders.py`
+- `backend/app/api/routes/reporting.py`
 - `backend/app/services/__init__.py`
 - `backend/app/services/work_orders.py`
+- `backend/app/services/reporting.py`
 - `backend/tests/conftest.py`
 - `backend/tests/test_auth.py`
 - `backend/tests/test_assets.py`
 - `backend/tests/test_work_orders.py`
+- `backend/tests/test_reporting.py`
 - `backend/app/models/maintenance_record.py`
 - `backend/alembic.ini`
 - `backend/alembic/env.py`
@@ -138,9 +154,9 @@ Modified:
 - `docs/DEVELOPMENT_ROADMAP.md`
 - `docs/PROJECT_STATUS.md`
 
-No frontend files were changed in Phases 4–5. Local `.env`, `.venv`, caches, build output, and logs remain ignored and untracked.
+No frontend files were changed in Phases 4–7. Local `.env`, `.venv`, caches, build output, and logs remain ignored and untracked.
 
-## 9. Environment and database versions verified
+## 11. Environment and database versions verified
 
 - Git `2.46.0.windows.1`
 - Python `3.12.10`
@@ -151,7 +167,7 @@ No frontend files were changed in Phases 4–5. Local `.env`, `.venv`, caches, b
 - PostgreSQL listener: `127.0.0.1:5432`, accepting connections
 - Docker Desktop: unavailable/not running; not needed for Phase 3
 
-## 10. Dependencies added
+## 12. Dependencies added
 
 Added to `backend/requirements.txt` and installed into `backend/.venv`:
 
@@ -164,7 +180,7 @@ Added to `backend/requirements.txt` and installed into `backend/.venv`:
 
 Existing Phase 2 dependencies were preserved. `pip check` reported no broken requirements.
 
-## 11. Commands actually executed
+## 13. Commands actually executed
 
 - Read all project instructions, specification, status, roadmap, decisions, README, and existing source/manifests.
 - Inspected Git state and existing files; repository started this phase clean at `d626d8f`.
@@ -189,8 +205,10 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - Verified asset API route registration through the FastAPI application and OpenAPI route metadata.
 - Added work-order schemas, transactional services, routes, technician-scope rules, and PostgreSQL-backed workflow tests.
 - Verified work-order route registration and status/assignment/maintenance API behavior through FastAPI TestClient.
+- Added dashboard/reporting query services, response schemas, routes, database-level filters, aggregate breakdowns, and technician isolation tests.
+- Verified dashboard/reporting route registration and OpenAPI metadata.
 
-## 12. Tests and verification results
+## 14. Tests and verification results
 
 - Database metadata tests: **passed as part of the full suite**.
 - Full backend suite, including the Phase 2 health test: **passed, 5 passed in 0.77s**.
@@ -212,32 +230,35 @@ Existing Phase 2 dependencies were preserved. `pip check` reported no broken req
 - Equipment API contract: **passed** for 401/403/404/409/422 behavior, search/filter/status pagination, all role permissions, partial updates, duplicate handling, and repeated deactivation.
 - Phase 6 PostgreSQL-backed workflow suite: **passed, 27 passed in 3.05s**; this includes all Phase 2–5 regression tests plus work-order creation, scoping, filters, assignment, notes, transitions, completion, maintenance history, and terminal-state checks.
 - Python compilation for `app` and `tests`: **passed**.
+- Phase 7 PostgreSQL-backed dashboard/reporting suite: **passed, 31 passed in 7.38s**; this includes zero-safe dashboard behavior, aggregate counts, date filtering, combined report filters, pagination, invalid ranges, authentication, and technician isolation.
+- Full FastAPI route inspection: **passed**; `/api/dashboard`, `/api/reports/work-orders`, and `/api/reports/maintenance` are registered.
+- Frontend Vite production build regression: **passed** with Vite `6.4.4`; no frontend source files were changed.
 
-## 13. Current bugs and blockers
+## 15. Current bugs and blockers
 
-- No Phase 6 blockers remain.
+- No Phase 7 blockers remain.
 - Credentials remain local-only and are not tracked; another developer must configure their own `backend/.env`.
 - Stateless JWTs are not server-revocable before expiry; logout requires client-side token disposal.
 
-## 14. Incomplete tasks
+## 16. Incomplete tasks
 
-- Implement Phase 7 dashboard and reporting APIs.
+- Implement Phase 8 frontend authentication, application shell, dashboard, equipment, and work-order screens.
 - Preserve the existing migration history and use new reviewed migrations for future schema changes.
 
-## 15. Decisions awaiting approval
+## 17. Decisions awaiting approval
 
-- The Phase 5 API contract is recorded in D-013 and the Phase 6 workflow contract is recorded in D-014.
-- No Phase 6 decision is awaiting approval.
+- The Phase 5 API contract is recorded in D-013, the Phase 6 workflow contract in D-014, and the Phase 7 reporting contract in D-015.
+- No Phase 7 decision is awaiting approval.
 
-## 16. Next phase
+## 18. Next phase
 
-Phase 7 — Dashboard and reporting APIs.
+Phase 8 — Frontend implementation.
 
-## 17. Exact next action
+## 19. Exact next action
 
-Implement authenticated aggregate dashboard queries for open/overdue work, priority/status distributions, equipment attention indicators, and role-appropriate visibility with PostgreSQL-backed tests.
+Build the React application shell, authentication state, protected routes, dashboard, equipment, work-order, history, maintenance, and role-aware UI against the verified backend contracts.
 
-## 18. Acceptance criteria before proceeding
+## 20. Acceptance criteria before proceeding
 
 - All five ORM models are registered and metadata tests pass.
 - Alembic imports the shared metadata and the initial migration renders valid PostgreSQL SQL.
@@ -258,7 +279,8 @@ Implement authenticated aggregate dashboard queries for open/overdue work, prior
 - Deactivation preserves asset records and is idempotent.
 - Work-order creation, assignment, reassignment, listing, filtering, notes, history, transitions, completion, and maintenance-history access are covered by PostgreSQL-backed tests.
 - Completion writes status, history, and one maintenance record transactionally; repeated completion cannot create duplicates.
+- Dashboard and report aggregates are calculated from persisted records, support database-level filters/pagination, and enforce technician isolation.
 
-## Phase 5 verification result
+## Phase verification summary
 
-Phase 5 is **complete** as of October 10, 2026. Phase 6 is **complete** as of October 10, 2026. The complete backend suite passed with **27 tests** against PostgreSQL using rollback-only isolation. Python compilation passed; no schema migration was required; no credentials or environment files are tracked; and no frontend, dashboard, deployment, or later-phase functionality was added.
+Phase 5 is **complete** as of October 10, 2026. Phase 6 is **complete** as of October 10, 2026. Phase 7 is **complete** as of October 10, 2026. The complete backend suite passed with **31 tests** against PostgreSQL using rollback-only isolation. Python compilation passed; no schema migration was required; no credentials or environment files are tracked; and no frontend, deployment, or later-phase functionality was added.

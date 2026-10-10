@@ -99,3 +99,10 @@ This log records decisions that constrain implementation. “Final” means appr
 - **Reason:** The existing schema already provides the required constrained values, activity event types, timezone-aware timestamps, and unique maintenance-record-per-work-order guarantee. Reusing it avoids an unnecessary migration while preserving history and transaction boundaries.
 - **Trade-offs:** Completion requires an assigned technician and a nonblank summary; `work_performed` defaults to the summary when not supplied. Technicians receive 404 for out-of-scope work orders and maintenance history to avoid revealing another technician's records. There is no post-terminal note or reassignment workflow.
 - **Status:** Final for Phase 6, subject to future reviewed product requirements.
+
+## D-015 — Phase 7 dashboard and reporting contract
+
+- **Decision:** Provide one authenticated `GET /api/dashboard` summary and paginated `GET /api/reports/work-orders` and `GET /api/reports/maintenance` endpoints. Calculate all metrics from current PostgreSQL records, use inclusive date filters, and apply technician assignment scope before counts, totals, and rows are produced.
+- **Reason:** This gives the MVP a compact operational reporting surface without adding a reporting data warehouse, duplicate counters, or schema changes. Existing indexed relationships support database-level filtering and aggregation.
+- **Trade-offs:** Dashboard date ranges filter work orders by `created_at` and maintenance by `completed_at`; technician asset totals cover only assets connected to their assigned work orders, so they do not represent organization-wide totals. The frontend dashboard remains deferred to Phase 8.
+- **Status:** Final for Phase 7, subject to future reviewed product requirements.

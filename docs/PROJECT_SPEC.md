@@ -82,6 +82,7 @@ The MVP is accepted only when the implemented workflows, tests, documentation, a
 
 - An authenticated dashboard shows calculated metrics such as open work orders, overdue work orders, priority distribution, status distribution, and equipment needing attention.
 - Dashboard data is queried from current persisted records; it is not hard-coded or maintained as an unreliable duplicate counter.
+- Phase 7 implements `GET /api/dashboard`, `GET /api/reports/work-orders`, and `GET /api/reports/maintenance`. Reports use database-level filters and deterministic `{items, total, skip, limit}` pagination; date bounds are inclusive and accept date-only or timezone-aware ISO-8601 values.
 
 ## 4. Non-functional requirements
 
@@ -112,7 +113,7 @@ The MVP is accepted only when the implemented workflows, tests, documentation, a
 | Administer work orders | Yes | Yes | No |
 | View dashboard/reporting | Yes | Yes | Limited/role-appropriate view |
 
-The exact technician visibility for equipment and dashboard detail is a provisional product decision to be confirmed during implementation. Every permission must be enforced by the backend regardless of UI behavior.
+Technician dashboard asset counts are limited to assets connected to that technician's assigned work orders; technician work-order and maintenance report rows are similarly scoped. Every permission is enforced by the backend regardless of UI behavior.
 
 ## 6. Equipment-management workflow
 
@@ -364,10 +365,10 @@ Open assumptions must be resolved in the relevant implementation phase and recor
 
 ## 16. Known limitations
 
-- Work-order, dashboard, and frontend authentication/equipment APIs do not exist yet; the Phase 3 ORM models, Phase 4 authentication foundation, and Phase 5 equipment APIs are implemented and locally verified.
+- Frontend authentication/equipment/work-order/dashboard UI does not exist yet; backend Phases 1–7 are implemented and locally verified.
 - The MVP is not multi-tenant.
 - Notifications, file attachments, inventory/parts, preventive-maintenance scheduling, mobile apps, machine learning, advanced analytics, microservices, Kubernetes, and production AWS operations are excluded unless later approved.
-- The current specification describes planned behavior; implementation and verification remain outstanding.
+- The current specification describes the remaining planned frontend and deployment behavior; backend implementation and verification through Phase 7 are complete.
 
 ## 17. MVP completion criteria
 

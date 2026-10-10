@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.auth import router as auth_router
 from app.api.routes.assets import router as assets_router
 from app.api.routes.work_orders import router as work_orders_router
+from app.api.routes.reporting import router as reporting_router
 
 def _configured_cors_origins() -> list[str]:
     """Return configured frontend origins, with safe local defaults."""
@@ -36,6 +37,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(assets_router)
 app.include_router(work_orders_router)
+app.include_router(reporting_router)
 
 
 @app.get("/api/health")

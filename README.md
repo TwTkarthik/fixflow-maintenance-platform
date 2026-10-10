@@ -4,9 +4,9 @@ FixFlow is a maintenance and repair management platform for small and medium-siz
 
 ## Current status
 
-Phases 1–6 are complete and verified: the repository contains a minimal FastAPI backend, React/Vite frontend skeleton, SQLAlchemy models, an applied Alembic migration, JWT authentication, backend role dependencies, authenticated equipment APIs, and PostgreSQL-backed work-order/maintenance workflows.
+Phases 1–7 are complete and verified: the repository contains a minimal FastAPI backend, React/Vite frontend skeleton, SQLAlchemy models, an applied Alembic migration, JWT authentication, backend role dependencies, authenticated equipment APIs, PostgreSQL-backed work-order/maintenance workflows, and dashboard/reporting APIs.
 
-Dashboards, frontend login/equipment/work-order UI, Docker packaging, and AWS deployment have not been implemented yet.
+Frontend login/equipment/work-order/dashboard UI, Docker packaging, and AWS deployment have not been implemented yet.
 
 ## Planned features
 
@@ -140,6 +140,16 @@ Phase 6 provides authenticated work-order workflows:
 - `GET /api/assets/{asset_id}/maintenance-history` — chronological maintenance records for an asset, scoped for technicians.
 
 The approved statuses are `open`, `assigned`, `in_progress`, `on_hold`, `completed`, and `cancelled`. Assignment moves an open order to `assigned`; reassignment preserves the current nonterminal status. Completing an assigned order requires a nonblank completion summary and creates exactly one maintenance record in the same transaction as the status and history changes. Technicians can list, inspect, transition, and note only their own assigned nonterminal work; managers and administrators manage all work orders. Work-order list responses use `{items, total, skip, limit}` with a default limit of 20 and a maximum of 100.
+
+### Dashboard and reporting API
+
+Phase 7 provides authenticated, database-backed operational reporting:
+
+- `GET /api/dashboard` — asset totals, work-order totals, outstanding/overdue/completed counts, status and priority breakdowns, maintenance totals, and assets needing attention.
+- `GET /api/reports/work-orders` — paginated work-order rows with date, status, priority, asset, assignee, overdue, and text-search filters.
+- `GET /api/reports/maintenance` — paginated maintenance rows with date, status, priority, asset, assignee/technician, and text-search filters.
+
+Date filters accept `YYYY-MM-DD` or timezone-aware ISO-8601 values and are inclusive. Reports use `{items, total, skip, limit}` with a default limit of 20 and a maximum of 100. Administrators and managers see organization-level metrics; technicians receive SQL-scoped metrics and report rows for their assigned work only.
 
 ### Frontend
 

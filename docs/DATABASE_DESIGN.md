@@ -2,7 +2,7 @@
 
 ## Purpose and scope
 
-This document describes the PostgreSQL schema foundation and the Phase 6 workflow behavior built on top of it. It covers five SQLAlchemy 2.x ORM models and the initial Alembic migration. No schema migration was required for Phase 6 because the existing tables, update types, and maintenance uniqueness constraint already support the APIs.
+This document describes the PostgreSQL schema foundation and the Phase 6–7 workflow/reporting behavior built on top of it. It covers five SQLAlchemy 2.x ORM models and the initial Alembic migration. No schema migration was required for Phases 6–7 because the existing tables, update types, and maintenance uniqueness constraint already support the APIs.
 
 The database is designed for the initial single-organization MVP. Integer auto-incrementing primary keys were selected for readability and straightforward relational joins. All stored timestamps use timezone-aware PostgreSQL timestamps and are generated in UTC by the database/application environment.
 
@@ -118,7 +118,7 @@ The unique `work_order_id` constraint represents the decision that one completed
 - Required strings have non-blank checks where a blank value would be invalid.
 - Email, asset code, and maintenance work-order reference are unique.
 - Composite indexes support the expected future list and history queries.
-- Dashboard totals are not stored in these tables; future reporting queries will calculate them.
+- Dashboard totals are not stored in these tables; reporting queries calculate them from current records.
 
 ## Alembic migration
 
@@ -157,4 +157,6 @@ Do not drop or recreate the database to resolve migration issues. Review autogen
 - No seed users, sample assets, or sample work orders are created.
 - Work-order completion requires an assigned technician and a nonblank completion summary; `work_performed` defaults to that summary when omitted.
 - Technician queries are scoped by the current authenticated user's assignment before totals or records are returned.
+- Dashboard and report date filters apply to work-order `created_at` or maintenance `completed_at`; date-only bounds cover the full UTC day.
+- Technician dashboard asset counts include only assets connected to that technician's scoped work orders, avoiding organization-wide leakage.
 - The schema does not yet include authentication tokens, audit policy beyond work-order updates, attachments, inventory, or preventive-maintenance scheduling.
