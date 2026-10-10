@@ -9,6 +9,7 @@ from app.api.routes.auth import router as auth_router
 from app.api.routes.assets import router as assets_router
 from app.api.routes.work_orders import router as work_orders_router
 from app.api.routes.reporting import router as reporting_router
+from app.core.config import validate_runtime_configuration
 
 def _configured_cors_origins() -> list[str]:
     """Return configured frontend origins, with safe local defaults."""
@@ -18,6 +19,9 @@ def _configured_cors_origins() -> list[str]:
         "http://localhost:5173,http://127.0.0.1:5173",
     )
     return [origin.strip() for origin in configured.split(",") if origin.strip()]
+
+
+validate_runtime_configuration()
 
 
 app = FastAPI(
