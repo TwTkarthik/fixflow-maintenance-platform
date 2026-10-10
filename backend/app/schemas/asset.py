@@ -21,6 +21,8 @@ def _optional_text(value: str | None) -> str | None:
 
 
 class AssetCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     asset_code: str = Field(min_length=1, max_length=80)
     name: str = Field(min_length=1, max_length=160)
     category: str = Field(min_length=1, max_length=120)
@@ -40,6 +42,8 @@ class AssetCreate(BaseModel):
 
 
 class AssetUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     asset_code: str | None = Field(default=None, min_length=1, max_length=80)
     name: str | None = Field(default=None, min_length=1, max_length=160)
     category: str | None = Field(default=None, min_length=1, max_length=120)

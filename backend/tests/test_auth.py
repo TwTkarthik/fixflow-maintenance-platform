@@ -143,6 +143,37 @@ def test_missing_malformed_expired_and_bad_signature_tokens_are_rejected(
             headers={
                 "Authorization": "Bearer "
                 + jwt.encode(
+                    {
+                        "sub": str(user.id),
+                        "iat": datetime.now(UTC),
+                        "exp": datetime.now(UTC) + timedelta(hours=1),
+                    },
+                    get_jwt_secret_key(),
+                    algorithm=get_jwt_algorithm(),
+                )
+            },
+        ),
+        client.get(
+            "/api/auth/me",
+            headers={
+                "Authorization": "Bearer "
+                + jwt.encode(
+                    {
+                        "sub": str(user.id),
+                        "iat": datetime.now(UTC),
+                        "exp": datetime.now(UTC) + timedelta(hours=1),
+                        "typ": "refresh",
+                    },
+                    get_jwt_secret_key(),
+                    algorithm=get_jwt_algorithm(),
+                )
+            },
+        ),
+        client.get(
+            "/api/auth/me",
+            headers={
+                "Authorization": "Bearer "
+                + jwt.encode(
                     jwt.decode(
                         valid_token,
                         get_jwt_secret_key(),

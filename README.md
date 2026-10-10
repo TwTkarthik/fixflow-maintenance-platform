@@ -4,9 +4,9 @@ FixFlow is a maintenance and repair management platform for small and medium-siz
 
 ## Current status
 
-Phases 1–8 are complete and verified: the repository contains a FastAPI backend, a React/Vite frontend connected to the documented APIs, SQLAlchemy models, an applied Alembic migration, JWT authentication, backend role dependencies, authenticated equipment APIs, PostgreSQL-backed work-order/maintenance workflows, and dashboard/reporting APIs.
+Phases 1–8 are complete and verified, and the Phase 10 testing/debugging/security review is complete: the repository contains a FastAPI backend, a React/Vite frontend connected to the documented APIs, SQLAlchemy models, an applied Alembic migration, JWT authentication, backend role dependencies, authenticated equipment APIs, PostgreSQL-backed work-order/maintenance workflows, dashboard/reporting APIs, and focused frontend/backend regression coverage.
 
-End-to-end browser smoke verification, Docker packaging, and AWS deployment remain future work. Administrator user-management UI is deferred until a backend user-management API exists.
+Authenticated browser smoke verification remains outstanding because safe disposable credentials and an allowed automated password-entry path were unavailable. Docker packaging and AWS deployment remain future work. Administrator user-management UI is deferred until a backend user-management API exists.
 
 ## Planned features
 
@@ -158,6 +158,8 @@ In a second PowerShell window, from the repository root:
 ```powershell
 cd frontend
 npm install
+npm test
+npm run build
 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 

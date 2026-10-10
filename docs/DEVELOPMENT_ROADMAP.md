@@ -2,7 +2,7 @@
 
 This roadmap is the intended lifecycle. Work proceeds in order, and the status document records what is actually underway. A later phase must not be treated as complete because its files or plans exist.
 
-**Current roadmap state:** Phases 1–8 are complete and verified. Phase 9 verification is in progress: frontend smoke tests and unauthenticated browser startup are verified, while authenticated browser workflows remain outstanding. The local PostgreSQL schema remains at Alembic revision `e98ccb2cbf89`; Phases 6–9 required no schema migration. Phase 10 and all later phases remain not started.
+**Current roadmap state:** Phases 1–8 are complete and verified. Phase 9 authenticated browser workflows remain an explicitly recorded limitation. Phase 10 testing, debugging, and security review is complete and verified; Phase 11 and all later phases remain not started. The local PostgreSQL schema remains at Alembic revision `e98ccb2cbf89`; no Phase 6–10 schema migration was needed.
 
 ## Phase 1 — Project foundation and master documentation
 
@@ -136,6 +136,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 
 ## Phase 10 — Testing, debugging, and security review
 
+**Status:** Complete and verified on October 10, 2026. The known Phase 9 authenticated-browser limitation remains documented; no critical application blocker was found.
+
 **Objective:** Stabilize the MVP and assess correctness and security before packaging.
 
 **Planned tasks:** Expand backend and frontend tests, run migrations from empty state, test role boundaries and invalid input, review secrets/CORS/JWT/error handling, inspect dependencies, fix bugs, and rehearse the demonstration.
@@ -145,6 +147,8 @@ This roadmap is the intended lifecycle. Work proceeds in order, and the status d
 **Deliverables:** Test results, bug fixes, security review notes, and an updated status record.
 
 **Completion criteria:** Important workflows and permissions pass; no known critical blocker remains; documentation reflects actual setup and commands.
+
+**Phase 10 outcome:** Added stricter asset input validation, expanded backend security and permission-boundary tests from 31 to 33, and added direct frontend API-client coverage, bringing the frontend suite from 7 to 12 tests. Verified the initial Alembic migration in a disposable PostgreSQL schema, reviewed CORS/JWT/error handling, ran dependency consistency checks, and remediated the test-toolchain advisories by upgrading Vitest to `5.0.3`; `npm audit --audit-level=high` then reported zero vulnerabilities. No database migration was required.
 
 ## Phase 11 — Docker packaging and optional AWS deployment
 

@@ -125,6 +125,16 @@ def test_invalid_pagination_and_validation_are_rejected(
     assert client.patch(
         f"/api/assets/{created['id']}", json={}, headers=headers
     ).status_code == 422
+    assert client.post(
+        "/api/assets",
+        json={**asset_payload(), "unexpected": "rejected"},
+        headers=headers,
+    ).status_code == 422
+    assert client.patch(
+        f"/api/assets/{created['id']}",
+        json={"unexpected": "rejected"},
+        headers=headers,
+    ).status_code == 422
 
 
 def test_managers_and_administrators_can_create_update_and_deactivate(
